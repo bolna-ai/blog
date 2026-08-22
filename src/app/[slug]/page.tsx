@@ -1,0 +1,172 @@
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { format } from "date-fns";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { getAllPosts, getPostBySlug, categorySlug, type Post } from "@/lib/posts";
+import { extractToc } from "@/lib/toc";
+import { TableOfContents } from "@/components/table-of-contents";
+import type { Metadata } from "next";
+import type { Components } from "react-markdown";
+
+// Heading anchors (from rehype-autolink-headings) link to "#section" within
+// the same page and should stay in-tab; every other link in post bodies is
+// an external reference and should open in a new tab.
+const markdownComponents: Components = {
+  a: ({ href, children, className }) =>
+    href?.startsWith("#") ? (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    ) : (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {children}
+      </a>
+    ),
+};
+
+function AuthorTag({ post }: { post: Post }) {
+  const avatar = post.authorAvatar ? (
+    <Image
+      src={post.authorAvatar}
+      alt={post.author}
+      width={40}
+      height={40}
+      className="rounded-full bg-foreground ring-2 ring-border"
+      unoptimized
+    />
+  ) : (
+    <div className="h-10 w-10 rounded-full bg-muted ring-2 ring-border" />
+  );
+
+  const nameBlock = (
+    <div>
+      <p className="font-medium text-foreground">{post.author}</p>
+      <p className="text-xs text-muted-foreground">Author</p>
+    </div>
+  );
+
+  if (post.authorGithub) {
+    return (
+      <a
+        href={post.authorGithub}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center space-x-3 text-sm transition-opacity hover:opacity-80"
+      >
+        {avatar}
+        {nameBlock}
+      </a>
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-3 text-sm">
+      {avatar}
+      {nameBlock}
+    </div>
+  );
+}
+
+export function generateStaticParams() {
+  return getAllPosts().map((post) => ({ slug: post.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+  if (!post) return {};
+  return {
+    title: post.title,
+    description: post.excerpt,
+    authors: [{ name: post.author }],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author],
+      images: post.coverImage ? [post.coverImage] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: post.coverImage ? [post.coverImage] : undefined,
+    },
+  };
+}
+
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+  if (!post) notFound();
+  const toc = extractToc(post.content);
+
+  return (
+    <div className="mx-auto px-4 py-6 lg:py-10">
+      <div className="relative flex justify-center">
+        <TableOfContents items={toc} />
+        <article className="w-full max-w-3xl">
+          <header className="mb-12 border-b border-border pb-8">
+            <div className="mb-6">
+              <time dateTime={post.date} className="text-sm text-muted-foreground">
+                {format(new Date(post.date), "MMMM d, yyyy")}
+              </time>
+              <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
+                {post.title}
+              </h1>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {post.categories.map((cat) => (
+                  <a
+                    key={cat}
+                    href={`/category/${categorySlug(cat)}`}
+                    className="inline-flex items-center rounded-sm border border-border px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
+                  >
+                    {cat}
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center space-x-4 pt-4">
+              <AuthorTag post={post} />
+            </div>
+          </header>
+
+          {post.coverImage && (
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              width={720}
+              height={405}
+              className="my-8 w-full rounded-md border border-border bg-muted"
+              priority
+            />
+          )}
+
+          <div className="prose">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeSlug, rehypeAutolinkHeadings]}
+              components={markdownComponents}
+            >
+              {post.content}
+            </ReactMarkdown>
+          </div>
+
+          <hr className="mt-12 border-border" />
+        </article>
+      </div>
+    </div>
+  );
+}

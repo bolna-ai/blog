@@ -1,0 +1,162 @@
+---
+title: "How We Reduced TCP Connections Across Our Voice AI Fleet Without Adding More Servers"
+slug: "reduced-tcp-connections-voice-ai-fleet"
+date: "2026-07-27T07:00:00.000Z"
+author: "Mujeer Ahmed"
+authorGithub: "https://github.com/MujeerAhmed"
+authorAvatar: "https://github.com/MujeerAhmed.png"
+categories: ["Engineering"]
+excerpt: "Recently, while looking at our WebSocket server fleet, we noticed something interesting."
+sourceUrl: "https://www.bolna.ai/builders/blog/how-we-reduced-tcp-connections-across-our-voice-ai-fleet-without-adding-more-servers"
+---
+
+Recently, while looking at our WebSocket server fleet, we noticed something interesting.
+
+A few months ago, each pod would routinely show hundreds of TCP connections across states like `ESTABLISHED`, `TIME_WAIT`, and `CLOSE_WAIT`. Today, despite handling similar or higher traffic volumes, those numbers have dropped significantly.
+
+This wasn't the result of reducing traffic. It was the result of systematically eliminating connection inefficiencies across the stack.
+
+## The Symptom
+
+Our WebSocket servers sit at the center of a real-time Voice AI platform. Every active call maintains multiple long-lived streams while simultaneously interacting with LLMs, STT providers, TTS providers, databases, caches, and internal services.
+
+When we first started scaling, a typical pod would accumulate large numbers of TCP connections:
+
+-   Hundreds of active (`ESTABLISHED`) connections
+-   Large `TIME_WAIT` counts
+-   Growing `CLOSE_WAIT` counts
+-   Periodic connection resets
+
+None of these are inherently bad, but at scale they create pressure on:
+
+-   File descriptors
+-   Kernel networking resources
+-   Memory consumption
+-   Connection setup latency
+-   Upstream services
+
+Over time, we realized that many of these connections were avoidable.
+
+## Root Cause #1: LLM Connections Were Not Being Reused
+
+One of the biggest contributors was outbound LLM traffic.
+
+Originally, many requests would create fresh HTTP connections to model providers. While the requests themselves were fast, repeatedly performing TCP and TLS handshakes created unnecessary connection churn.
+
+Every new connection introduces:
+
+1.  TCP handshake
+2.  TLS negotiation
+3.  Socket allocation
+4.  Kernel bookkeeping
+
+Across thousands of requests, this adds up quickly.
+
+The fix was straightforward:
+
+-   Introduce persistent HTTP clients
+-   Enable connection pooling
+-   Reuse existing keep-alive connections whenever possible
+
+Instead of opening a new connection for every request, requests now share a pool of warm connections.
+
+One subtlety worth calling out: we intentionally kept these pooled clients on HTTP/1.1 rather than HTTP/2. HTTP/2 multiplexes many requests over a single connection, which sounds ideal, but in a voice pipeline, generations are frequently cancelled mid-stream when the caller interrupts the agent (barge-in). Under HTTP/2, those abrupt cancellations left streams in a bad state and leaked connections back into the pool. Sticking with pooled HTTP/1.1 connections gave us clean per-request lifecycles and the connection reuse we were after, without the cancellation hazard.
+
+The result was a substantial reduction in both connection creation rate and `TIME_WAIT` accumulation.
+
+## Root Cause #2: Better HTTP Connection Pooling Across Services
+
+The LLM client wasn't the only place where connections were being recreated.
+
+Over time we audited interactions with:
+
+-   Internal APIs
+-   Telephony providers
+-   STT services
+-   TTS services
+-   Observability systems
+
+Several integrations were creating short-lived HTTP sessions that could be reused.
+
+By standardizing on shared async HTTP clients and connection pools, we reduced:
+
+-   TCP handshakes
+-   TLS renegotiations
+-   Connection teardown events
+
+This not only reduced connection counts but also improved request latency because many requests were sent over already-established sockets.
+
+## Root Cause #3: Stale WebSocket Connections
+
+The most impactful improvement came from cleaning up stale WebSocket sessions.
+
+In real-world telephony systems, connections do not always close cleanly.
+
+Examples include:
+
+-   Carrier-side disconnects
+-   Mobile network drops
+-   Browser/network interruptions
+-   Provider timeouts
+-   Process crashes
+
+Without aggressive cleanup, these stale sessions can remain attached to resources far longer than necessary.
+
+We introduced:
+
+-   Better heartbeat monitoring
+-   Idle connection detection
+-   Faster cleanup of orphaned sessions
+-   More reliable disconnect handling
+
+As a result:
+
+-   Dead sockets stopped lingering
+-   Memory usage became more predictable
+-   Connection counts more accurately reflected active traffic
+
+## What the Numbers Look Like Today
+
+A recent snapshot from our production WebSocket fleet showed:
+
+-   Roughly 75–90 established connections per pod
+-   Limited `TIME_WAIT` accumulation
+-   Low `CLOSE_WAIT` counts
+-   Very few connection resets
+
+More importantly, the distribution across pods is relatively uniform, indicating that traffic is being balanced effectively.
+
+The total number of connections across the fleet is dramatically lower than what we observed several months ago.
+
+## Why This Matters
+
+Connection efficiency is one of those optimizations that rarely shows up in product demos but has a disproportionate impact on reliability.
+
+Reducing unnecessary connections means:
+
+-   Lower memory consumption
+-   Fewer open file descriptors
+-   Less kernel overhead
+-   Reduced TLS handshake costs
+-   Better latency
+-   Higher effective pod capacity
+
+In distributed systems, scaling is often less about adding more machines and more about making better use of the connections you already have.
+
+## Key Takeaway
+
+The improvement wasn't the result of a single optimization.
+
+It came from many small fixes accumulated over time:
+
+-   LLM connection pooling
+-   Reusable HTTP clients
+-   Better keep-alive usage
+-   Cleanup of stale WebSocket sessions
+-   More disciplined connection lifecycle management
+
+Individually, each change seemed minor.
+
+Collectively, they significantly reduced the number of active TCP connections across our Voice AI infrastructure while improving stability and resource efficiency.
+
+Sometimes the best scaling win isn't handling more traffic. It's needing fewer connections to handle the same traffic.

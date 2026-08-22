@@ -1,0 +1,169 @@
+---
+title: "When One Provider Combo Goes Down, Thousands of Calls Suffer - Here's How to Catch It in 30 Minutes"
+slug: "when-one-provider-combo-goes-down"
+date: "2026-07-27T00:00:00.000Z"
+author: "Dabbu Mothsera"
+authorGithub: "https://github.com/lazerbeam47"
+authorAvatar: "https://github.com/lazerbeam47.png"
+categories: ["Community"]
+excerpt: "Sudarshan Kamath, founder of Smallest AI, said something recently that stuck with me:"
+sourceUrl: "https://www.bolna.ai/builders/blog/when-one-provider-combo-goes-down-thousands-of-calls-suffer-here-s-how-to-catch-it-in-30-minutes"
+---
+
+## The Uncomfortable Truth About Voice AI at Scale
+
+Sudarshan Kamath, founder of Smallest AI, said something recently that stuck with me:
+
+> "The thing that breaks real-time voice agents in production usually isn't model quality. It's control. Rent a popular real-time model through an API and you inherit its latency spikes, its costs, its bad days - none of it tunable when a call is live."
+
+He's right. And the problem runs deeper than most people realize.
+
+When you're running voice AI at scale, you're not just depending on one external provider. You're chaining three of them together - every single call. Speech-to-text, a language model, text-to-speech. Each one a potential point of failure. Each one having its own bad days, its own latency spikes, its own outages.
+
+And here's what makes it dangerous: **you probably won't know when it happens.**
+
+* * *
+
+## How Bolna's Pipeline Actually Works
+
+Bolna powers voice agents for collections, recruitment, outbound sales, and customer support - across Hindi, Hinglish, Tamil, Telugu, and more. Every call runs through a chain of three providers:
+
+-   **ASR** (speech-to-text) - Deepgram Nova-2, Sarvam Saaras-v2, Azure Whisper
+-   **LLM** (language model) - OpenAI GPT-4o, DeepSeek V3, Groq LLaMA 3.3
+-   **TTS** (text-to-speech) - ElevenLabs, Cartesia Sonic-2, Sarvam Bulbul-v2
+
+That's 20+ unique provider combinations running simultaneously, across thousands of calls every day.
+
+Each combination has its own latency profile, its own failure modes, its own good days and bad days. And they behave completely differently from each other.
+
+* * *
+
+## The Problem: Aggregate Metrics Lie
+
+Here's a scenario that happens more often than anyone admits:
+
+Your average latency across all calls today is 820ms. Dashboard is green. Everything looks fine.
+
+But `sarvam + deepseek + elevenlabs` - running 800 calls today - just spiked to 2200ms. That spike gets averaged away across all your other healthy combos. Your monitoring shows nothing. Your SRE team sees nothing.
+
+Meanwhile:
+
+-   A collections agent's transcription starts failing mid-sentence. The customer says "hello" and gets silence. They hang up.
+-   A recruitment bot slows down during a campaign. Candidates hear awkward pauses, lose trust, drop off before screening completes.
+-   An outbound sales team's conversion rate quietly dips. Nobody can explain why.
+
+Your customers notice before your engineering team does. That's the real cost.
+
+* * *
+
+## What Canary Analysis Looks Like for Voice Infra
+
+In traditional software engineering, canary analysis means catching regressions in a small subset of traffic before they affect everyone. For voice AI pipelines, the equivalent is **per-combo drift detection** - watching each provider combination independently, against its own historical baseline.
+
+This is the idea behind BolnaMonitor.
+
+Instead of one global latency average, it tracks every unique ASR+LLM+TTS combination separately. Each combo builds its own 24-hour baseline. The moment a combo's recent performance diverges from that baseline - statistically, not just by a fixed threshold - it fires an alert.
+
+The distinction matters: a naturally slower combo (say, a multilingual model) shouldn't constantly trigger warnings. And a fast combo that suddenly slows down should get caught immediately. Per-combo baselines make both possible.
+
+* * *
+
+## How the Detection Works
+
+The core is a Z-score computed per combination:
+
+`z = (recent_mean - baseline_mean) / baseline_std`
+
+In plain English: how many "standard deviations" away from normal is the current latency for this specific combo?
+
+| Z-Score | Probability of False Alarm | What It Means |
+| --- | --- | --- |
+| 2.5 | 1.2% | Likely real anomaly |
+| 3.0 | 0.27% | Almost certainly real |
+| 4.0+ | 0.003% | Definitely real |
+
+An alert fires when any of these three conditions are met:
+
+| Condition | Threshold |
+| --- | --- |
+| Statistical drift | Z-score > 2.5 vs 24h baseline |
+| Absolute latency | Total end-to-end > 2000ms |
+| Error rate | \> 5% empty transcripts or failures in last 30 min |
+
+Three independent signals. Any one of them is enough to surface the combo as degraded.
+
+* * *
+
+## What It Looks Like in Practice
+
+Here's a real example from the live dashboard:
+
+**`sarvam → deepseek → elevenlabs`**
+
+-   24h baseline: 877ms
+-   Last 30 min: 2242ms
+-   Z-score: **4.1 → CRITICAL**
+-   Error rate: 15.0%
+-   ASR: 263ms | LLM: 395ms | TTS: 219ms _(the LLM is the culprit)_
+
+**`azure → openai → azure`**
+
+-   24h baseline: 1100ms
+-   Last 30 min: 1521ms
+-   Z-score: **2.2 → WARNING**
+-   Error rate: 8.8%
+
+Every other combo: green.
+
+Without per-combo tracking, both of these disappear into a healthy-looking aggregate. With BolnaMonitor, they surface in under 30 minutes - broken down by which component (ASR, LLM, or TTS) is actually causing the spike.
+
+_Dashboard showing active alerts with z-scores, combo table with ASR/LLM/TTS breakdown, sparkline trend charts_
+
+* * *
+
+## What This Means for Bolna's Customers
+
+This isn't just an infrastructure concern - it maps directly to business outcomes.
+
+| Without monitoring | With BolnaMonitor |
+| --- | --- |
+| Customer complains → engineering investigates | Alert fires in ~30 min, before customer notices |
+| Hours finding root cause in aggregate logs | Dashboard shows exactly which combo broke and when |
+| All combos suspected, no clear answer | Per-component breakdown shows LLM is the culprit |
+| SLA breach, customer churn risk | Proactive fix, customer never impacted |
+
+For a collections team running 500+ calls/day, catching one major provider degradation early can be the difference between hitting recovery targets and missing them entirely.
+
+* * *
+
+## Integration: One Webhook URL
+
+Bolna already fires a detailed webhook after every call - with provider names, per-component latency, errors per turn, all inside `meta_info`. BolnaMonitor just listens to that:
+
+`https://bolna-monitor.onrender.com/webhook-receiver/webhook`
+
+No SDK. No code change in Bolna's stack. No new dependency. Just a webhook URL added to the existing config.
+
+The monitor extracts ASR, LLM, and TTS provider info and latency from each call, stores it, and runs drift detection continuously. The moment a combo crosses any of the three alert thresholds, it shows up on the dashboard.
+
+* * *
+
+## Current Limitations - Being Honest
+
+BolnaMonitor is a working prototype. Here's what a production version would need:
+
+-   **Push alerts** - Slack or PagerDuty, so you don't have to watch a dashboard
+-   **Time-of-day aware baseline** - afternoon traffic is naturally higher; comparing vs same hour yesterday reduces false positives
+-   **Per-language tracking** - Hindi and English calls have different latency profiles and should be tracked separately
+-   **PostgreSQL** - SQLite works for a demo, not for production traffic at Bolna's scale
+-   **Schema validation** - if Bolna's webhook payload changes, a validator catches it loudly instead of silently zeroing out fields
+
+* * *
+
+## Try It
+
+The dashboard is live with demo data showing real drift scenarios across Bolna's actual provider stack - Sarvam, Deepgram, ElevenLabs, Cartesia, DeepSeek, Groq, and more.
+
+**Live demo:** [https://bolna-monitor.onrender.com](https://bolna-monitor.onrender.com)
+
+**GitHub:** [https://github.com/lazerbeam47/BolnaMonitor](https://github.com/lazerbeam47/BolnaMonitor)
