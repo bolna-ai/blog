@@ -8,6 +8,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { getAllPosts, getPostBySlug, categorySlug, type Post } from "@/lib/posts";
 import { extractToc } from "@/lib/toc";
 import { TableOfContents } from "@/components/table-of-contents";
+import { SITE_URL } from "@/lib/links";
 import type { Metadata } from "next";
 import type { Components } from "react-markdown";
 
@@ -86,6 +87,10 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     authors: [{ name: post.author }],
+    alternates: {
+      canonical: `${SITE_URL}/${post.slug}`,
+      types: { "application/rss+xml": `${SITE_URL}/rss.xml` },
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -130,7 +135,7 @@ export default async function PostPage({
                 {post.categories.map((cat) => (
                   <a
                     key={cat}
-                    href={`/category/${categorySlug(cat)}`}
+                    href={`/blog/category/${categorySlug(cat)}`}
                     className="inline-flex items-center rounded-sm border border-border px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
                   >
                     {cat}

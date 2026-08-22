@@ -3,6 +3,7 @@ import { Rss } from "lucide-react";
 import { getAllPosts, getAllCategories, getCategoryBySlug, categorySlug } from "@/lib/posts";
 import { CategoryPills } from "@/components/category-pills";
 import { PostFeed } from "@/components/post-feed";
+import { RSS_PATH, SITE_URL } from "@/lib/links";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
@@ -20,6 +21,10 @@ export async function generateMetadata({
   return {
     title: category,
     description: `Posts filed under ${category} on the Bolna Blog.`,
+    alternates: {
+      canonical: `${SITE_URL}/category/${slug}`,
+      types: { "application/rss+xml": `${SITE_URL}/rss.xml` },
+    },
   };
 }
 
@@ -45,7 +50,7 @@ export default async function CategoryPage({
             <a
               className="text-muted-foreground transition-colors hover:text-primary"
               title="RSS Feed"
-              href="/rss.xml"
+              href={RSS_PATH}
             >
               <Rss className="h-8 w-8" />
               <span className="sr-only">RSS Feed</span>

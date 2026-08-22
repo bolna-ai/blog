@@ -2,6 +2,7 @@ import { Rss } from "lucide-react";
 import { getAllPosts } from "@/lib/posts";
 import { CategoryPills } from "@/components/category-pills";
 import { PostFeed } from "@/components/post-feed";
+import { RSS_PATH } from "@/lib/links";
 
 export default function Home() {
   const posts = getAllPosts();
@@ -17,7 +18,7 @@ export default function Home() {
             <a
               className="text-muted-foreground transition-colors hover:text-primary"
               title="RSS Feed"
-              href="/rss.xml"
+              href={RSS_PATH}
             >
               <Rss className="h-8 w-8" />
               <span className="sr-only">RSS Feed</span>

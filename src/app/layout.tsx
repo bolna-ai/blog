@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { SITE_URL } from "@/lib/links";
 import "./globals.css";
 
 const sans = Inter({
@@ -15,8 +16,6 @@ const heading = Space_Grotesk({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://blog.bolna.ai";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -26,8 +25,9 @@ export const metadata: Metadata = {
   description:
     "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
   alternates: {
+    canonical: SITE_URL,
     types: {
-      "application/rss+xml": "/rss.xml",
+      "application/rss+xml": `${SITE_URL}/rss.xml`,
     },
   },
   openGraph: {

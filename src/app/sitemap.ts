@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts, getAllCategories, categorySlug } from "@/lib/posts";
-
-const SITE_URL = "https://blog.bolna.ai";
+import { SITE_URL } from "@/lib/links";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts();

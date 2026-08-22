@@ -1,6 +1,5 @@
 import { getAllPosts } from "@/lib/posts";
-
-const SITE_URL = "https://blog.bolna.ai";
+import { SITE_URL } from "@/lib/links";
 
 function escapeXml(s: string): string {
   return s

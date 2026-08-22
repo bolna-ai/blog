@@ -6,7 +6,7 @@ import { SLACK_INVITE_URL } from "@/lib/links";
 const NAV_LINKS = [
   { href: "https://bolna.ai", label: "Home" },
   { href: "https://bolna.ai/docs", label: "Docs" },
-  { href: "/", label: "Blog" },
+  { href: "/blog", label: "Blog" },
   { href: "https://bolna.ai/pricing", label: "Pricing" },
 ];
 

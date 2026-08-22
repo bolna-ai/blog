@@ -1,5 +1,5 @@
 import { BolnaLogo } from "./bolna-logo";
-import { SLACK_INVITE_URL } from "@/lib/links";
+import { SLACK_INVITE_URL, RSS_PATH } from "@/lib/links";
 
 const COLUMNS = [
   {
@@ -13,7 +13,7 @@ const COLUMNS = [
   {
     title: "Resources",
     links: [
-      { label: "Blog", href: "/" },
+      { label: "Blog", href: "/blog" },
       { label: "Newsroom", href: "https://bolna.ai/newsroom" },
       { label: "Platform", href: "https://platform.bolna.ai" },
     ],
@@ -45,7 +45,7 @@ export function SiteFooter() {
               </h3>
               <ul className="space-y-2">
                 {col.links.map((link) => {
-                  const external = link.href !== "/";
+                  const external = link.href !== "/blog";
                   return (
                     <li key={link.label}>
                       <a
@@ -68,7 +68,7 @@ export function SiteFooter() {
             © {new Date().getFullYear()} Bolna
           </p>
           <a
-            href="/rss.xml"
+            href={RSS_PATH}
             className="mt-3 text-xs text-muted-foreground transition-colors hover:text-foreground md:mt-0"
           >
             RSS Feed

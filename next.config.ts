@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Canonical URL is now bolna.ai/blog (a path on the main site, not its own
+  // subdomain) — this makes every internal Link/Image/route in the app
+  // resolve under /blog automatically. The main bolna.ai app rewrites
+  // /blog/:path* to this app's own deployment with the /blog prefix intact.
+  basePath: "/blog",
   // Cleanup for URLs that existed on the old WordPress-hosted blog.bolna.ai
   // but have no direct equivalent here — everything else (posts, categories)
   // now shares the exact same URL shape as the old site, so no redirect is
