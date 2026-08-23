@@ -41,6 +41,7 @@ const nextConfig: NextConfig = {
       // equivalent concept here.
       { source: "/author/:slug", destination: "/", permanent: true },
       { source: "/author/:slug/page/:num", destination: "/", permanent: true },
+      { source: "/author/:slug/feed", destination: "/", permanent: true },
       // Tag archive pages — already 404ing on the live WordPress site
       // today (pre-existing, not a regression), so this is just cleanup
       // rather than carrying forward a broken URL shape indefinitely.
@@ -50,6 +51,27 @@ const nextConfig: NextConfig = {
       { source: "/comments/feed", destination: "/", permanent: true },
       { source: "/category/:slug/feed", destination: "/category/:slug", permanent: true },
       { source: "/:slug/feed", destination: "/:slug", permanent: true },
+      // Old/renamed post slugs — these already 301 on the live WordPress
+      // site today to their current slug (confirmed by querying the WP
+      // server directly). Carrying these forward matters more than the
+      // rest of this file: unlike the archive/feed cleanup above, external
+      // backlinks may point at these specific old URLs.
+      { source: "/ai-hiring-software-revolutionising-recruitment-enhancing-hiring", destination: "/ai-hiring-in-india-transforming-recruitment", permanent: true },
+      { source: "/integrating-bolna-with-plivo", destination: "/bolna-plivo-integration", permanent: true },
+      { source: "/the-future-of-hiring-bolna-leads-the-way", destination: "/bolna-voice-ai-for-recruitment-2025", permanent: true },
+      { source: "/agentic-workflows-standalone-agents-to-seamless-ai-teams", destination: "/agentic-ai-workflows", permanent: true },
+      { source: "/voice-ai-platform-bolna-vs-bland", destination: "/bolna-vs-bland-ai", permanent: true },
+      { source: "/ai-agents-redefining-it-dept-as-hr-for-the-future-of-ai", destination: "/voice-ai-changing-it-and-hr", permanent: true },
+      { source: "/ai-hiring-tools-every-recruiter-must-know-about-2", destination: "/top-indian-ai-hiring-tools-for-recruiters", permanent: true },
+      { source: "/ai-hiring-transforming-recruitment-with-automation", destination: "/ai-hiring-in-india-transforming-recruitment", permanent: true },
+      { source: "/ai-resume-screeners-whats-best-for-usa-companies", destination: "/best-ai-resume-screeners-for-indian-and-us-companies", permanent: true },
+      { source: "/ai-hiring-tools-every-recruiter-must-know-about", destination: "/ai-recruitment-in-tech-startups", permanent: true },
+      { source: "/voice-ai-platform-bolna-vs-vapi", destination: "/bolna-vs-vapi-voice-ai-platform", permanent: true },
+      { source: "/bolna-launches-openai-realtime-voice-models-in-india", destination: "/bolna-launches-openai-realtime-voice-ai-models-india", permanent: true },
+      { source: "/bolna-vs-bland-ai-voice-agent-platform", destination: "/bolna-vs-bland-ai", permanent: true },
+      { source: "/your-engineering-team-can-build-voice-ai-stack", destination: "/should-your-engineering-team-build-voice-ai-stack", permanent: true },
+      { source: "/voice-ai-platform-bolna-vs-retell", destination: "/bolna-vs-retell-voice-ai-platform", permanent: true },
+      { source: "/ai-hiring-software-revolutionises-recruitment-processes", destination: "/ai-hiring-software-transforms-recruitment", permanent: true },
     ];
   },
 };
