@@ -3,7 +3,11 @@ export const SLACK_INVITE_URL =
 
 // Canonical home of the blog. Single source of truth so it only needs
 // updating in one place if it ever moves again.
-export const SITE_URL = "https://bolna.ai/blog";
+// www is the canonical form for the main site (its own sitemap generator
+// hardcodes BASE_URL = 'https://www.bolna.ai', and the bare bolna.ai apex
+// redirects there) — matching it here avoids a canonical mismatch even
+// though the bare-apex path would still resolve via that redirect.
+export const SITE_URL = "https://www.bolna.ai/blog";
 
 // basePath ("/blog") only auto-prefixes next/link and the Metadata API —
 // plain <a> tags don't get it, so this needs to be spelled out explicitly
