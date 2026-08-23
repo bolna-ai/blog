@@ -8,7 +8,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { getAllPosts, getPostBySlug, categorySlug, type Post } from "@/lib/posts";
 import { extractToc } from "@/lib/toc";
 import { TableOfContents } from "@/components/table-of-contents";
-import { SITE_URL } from "@/lib/links";
+import { SITE_URL, BASE_PATH } from "@/lib/links";
 import type { Metadata } from "next";
 import type { Components } from "react-markdown";
 
@@ -26,6 +26,18 @@ const markdownComponents: Components = {
         {children}
       </a>
     ),
+  // react-markdown renders inline post-body images as a plain <img>, which
+  // (unlike next/image or next/link) doesn't get basePath auto-prefixed —
+  // every root-relative image reference in post content needs it spelled
+  // out explicitly or it 404s once the app is mounted under /blog.
+  img: ({ src, alt, className }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={typeof src === "string" && src.startsWith("/") ? `${BASE_PATH}${src}` : src}
+      alt={alt ?? ""}
+      className={className}
+    />
+  ),
 };
 
 function AuthorTag({ post }: { post: Post }) {
@@ -150,7 +162,12 @@ export default async function PostPage({
 
           {post.coverImage && (
             <Image
-              src={post.coverImage}
+              // Next 16's image optimizer, with basePath set, resolves local
+              // images by the *prefixed* path — <Image src> itself must not
+              // include it (that's what the framework auto-prepends onto
+              // the outer /_next/image request), but the url query param it
+              // builds from src does need it, so it has to be included here.
+              src={`${BASE_PATH}${post.coverImage}`}
               alt={post.title}
               width={720}
               height={405}

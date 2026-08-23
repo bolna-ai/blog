@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { format } from "date-fns";
+import { BASE_PATH } from "@/lib/links";
 import type { Post } from "@/lib/posts";
 
 export function PostFeed({ posts }: { posts: Post[] }) {
@@ -29,7 +30,9 @@ export function PostFeed({ posts }: { posts: Post[] }) {
             {featured.coverImage && (
               <div className="relative aspect-4/3 overflow-hidden lg:aspect-auto">
                 <Image
-                  src={featured.coverImage}
+                  // See the comment on the equivalent Image in [slug]/page.tsx —
+                  // the local image optimizer needs this pre-prefixed.
+                  src={`${BASE_PATH}${featured.coverImage}`}
                   alt={featured.title}
                   fill
                   className="object-cover transition-transform group-hover:scale-105"
@@ -88,7 +91,7 @@ export function PostFeed({ posts }: { posts: Post[] }) {
                 {post.coverImage && (
                   <div className="relative aspect-video overflow-hidden">
                     <Image
-                      src={post.coverImage}
+                      src={`${BASE_PATH}${post.coverImage}`}
                       alt={post.title}
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
