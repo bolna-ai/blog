@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isValidElement } from "react";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
@@ -8,9 +9,23 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { getAllPosts, getPostBySlug, categorySlug, type Post } from "@/lib/posts";
 import { extractToc } from "@/lib/toc";
 import { TableOfContents } from "@/components/table-of-contents";
+import { MermaidDiagram } from "@/components/mermaid-diagram";
 import { SITE_URL, BASE_PATH } from "@/lib/links";
 import type { Metadata } from "next";
 import type { Components } from "react-markdown";
+
+// Fenced ```mermaid blocks arrive from react-markdown as
+// <pre><code className="language-mermaid">...</code></pre>. Intercepting at
+// the `pre` level (rather than `code`) lets a mermaid block skip the <pre>
+// wrapper entirely — the CSS pre/code box styling below is meant for real
+// code, not a diagram.
+function getMermaidSource(children: React.ReactNode): string | null {
+  const codeEl = Array.isArray(children) ? children[0] : children;
+  if (!isValidElement<{ className?: string; children?: React.ReactNode }>(codeEl)) return null;
+  if (!codeEl.props.className?.includes("language-mermaid")) return null;
+  const raw = codeEl.props.children;
+  return Array.isArray(raw) ? raw.join("") : String(raw ?? "");
+}
 
 // Heading anchors (from rehype-autolink-headings) link to "#section" within
 // the same page and should stay in-tab; every other link in post bodies is
@@ -38,6 +53,11 @@ const markdownComponents: Components = {
       className={className}
     />
   ),
+  pre: ({ children }) => {
+    const mermaidSource = getMermaidSource(children);
+    if (mermaidSource) return <MermaidDiagram code={mermaidSource} />;
+    return <pre>{children}</pre>;
+  },
 };
 
 function AuthorTag({ post }: { post: Post }) {
