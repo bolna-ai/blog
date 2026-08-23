@@ -16,17 +16,17 @@ Last Thursday, OpenAI released a new generation of realtime voice models, each b
 
 Bolna launches OpenAI’s Realtime Voice AI models in India
 
-#### **Why India is the hardest market to ship voice AI into**
+## **Why India is the hardest market to ship voice AI into**
 
 India remains one of the most demanding markets where every model release of this kind eventually gets tested the hardest against its build. The country recognises twenty-two languages officially and has several hundred dialects across various pincodes in active daily use. Code-mixing \[switching between two or more languages\] is the default way of interaction for most urban Indians under the age-group of forty, with English more or less likely blended into a regional language inside the same sentence and sometimes the same phrase or clause. Pronunciation drifts noticeably across districts with heavy accents within a single state. The Tamil of Chennai is not the Tamil of Madurai. The Hindi of Lucknow is not the Hindi of Bhopal or Bihar. So when a voice AI model trained on a clean dataset full of American English is tested in this diverse environment, it consequentially breaks in ways that its developers never expected to fail. Those models were never built for India to begin with. Hence, whether the new infrastructure or models actually work, or only appear to, becomes clear in this non-standardised testing environment faster than almost anywhere else in the world.
 
-#### **How we benchmark all the voice AI models on Bolna**
+## **How we benchmark all the voice AI models on Bolna**
 
 At Bolna, having cracked Voice AI for India, we benchmark [every voice AI model](https://blog.bolna.ai/choosing-the-right-voice-ai-models/) that is launched against complex Indian standards and metrics. We’ve made evaluation a continuous ongoing process and we’ve shaped it around the realities of deploying voice AI use cases in India instead of generic global benchmarks. As part of our [testing process](https://blog.bolna.ai/voice-ai-testing-2025/), we measure word error rates registered across Hindi, Tamil, Telugu, Kannada, Marathi, Bengali and numerous other languages and fallback rates on code-mixed speech across diverse samples. For instance, a user in Bengaluru saying _“ಅಣ್ಣಾ, ನನ್ನ ಆರ್ಡರ್ ತಡವಾಗಿದೆ \[Anna, nanna order delay aagide ~ my order is delayed\], can you check the status?_” shouldn’t break the voice AI agent deployed on a certain model. And neither should a caller from Delhi switching between Hindi and English twice in one sentence.  
   
 Latency on Indian network conditions, which differ meaningfully from the conditions most models are also tested against, say, the response speed on Indian networks, which are very different from the fast, stable connections most models are tested on. Tool-calling reliability on agentic flows i.e. how reliably the system can carry out multi-step tasks, like looking something up, then booking it, then sending a confirmation. And the cost per minute, which is often the number that decides whether a system reaches production at all. We ran OpenAI’s new stack through the very same testing pipeline.
 
-#### **What Stood Out for GPT-Realtime-Whisper**
+## **What Stood Out for GPT-Realtime-Whisper**
 
 The findings on streaming transcription were the most striking for us at Bolna. GPT-Realtime-Whisper consistently held up across the numerous Indian languages \[i.e. Hindi, Tamil and Telugu\] we tested.
 
@@ -36,14 +36,14 @@ The findings on streaming transcription were the most striking for us at Bolna. 
 
 The word error rate was a significant indicator, but the consistency in lower fallback rate was even more amazing to witness. A model that fails to transcribe even one word in twenty is workable in production but one that silently produces unusable output, even occasionally, breaks the trust that voice AI depends on. The new transcription model from OpenAI consistently held up on both metrics, which is worth highlighting. The latency profile further reinforced it as live transcripts arrived fast enough that downstream applications behave differently than they did on previous-generation streaming STT. Agent assistance, live captioning, meeting notes that kept up with the conversation, real-time monitoring, all of these benefit from this upgrade.
 
-#### **How did GPT-Realtime-2 test against Indian frameworks**
+## **How did GPT-Realtime-2 test against Indian frameworks**
 
 With the agentic wave incoming, GPT-Realtime-2 showed gains in places that matter for the same. Short preambles like “let me check that for you” are not superficial for voice AI channels where silence is usually interpreted as a failed call. And the model now produces them naturally. Parallel tool calling compresses what used to be sequential previously, reducing latency on workflows that pull data from multiple systems. The context window has expanded to 128K, which makes longer agentic sessions coherent in ways they were previously not. Recovery behavior is also stronger and improved. The model can now acknowledge difficulty instead of failing silently without a response, which sounds like a small inconsistency until you have watched a voice AI agent break a conversation by going quiet at the wrong moment with the user disconnecting from the conversational flow.
 
-#### **The gaps that remain to be addressed**
+## **The gaps that remain to be addressed**
 
 Code-mixed utterances from diverse Indian demography at mid-phrase boundaries remain difficult, especially when the switch happens inside a noun phrase rather than at a clean clause break. Regulated sectors with [on-premise](https://blog.bolna.ai/enterprise-voice-ai-on-prem/) data requirements cannot use cloud-only models, which closes off categories that should be open. And the cost curve, while competitive for the capability tier, still requires careful routing between models and providers to stay defensible at Indian volumes. None of these are reasons not to build but only the constraints that shape how to build for an audience as linguistically rich as India.
 
-#### **Try OpenAI’s Realtime stack on the Bolna playground**
+## **Try OpenAI’s Realtime stack on the Bolna playground**
 
 For developers and teams building voice AI agents specifically catering to Indian pincodes, GPT-Realtime-2 and GPT-Realtime-Whisper are now available on the Bolna platform. You can try them at the [Bolna playground](http://platform.bolna.ai/dashboard) and run them against your own use cases. Lending flows, vernacular support agents, healthcare intake and follow ups, operations, anything where multilingual voice AI has been the constraint holding you back. This is the stack that is exponentially fluent in Indian languages and has the ability to tackle complex reasoning, handle interruptions, perform actions while keeping the conversation flowing, almost human-like.
