@@ -4,10 +4,10 @@ import { BolnaLogo } from "./bolna-logo";
 import { SLACK_INVITE_URL } from "@/lib/links";
 
 const NAV_LINKS = [
-  { href: "https://bolna.ai", label: "Home" },
-  { href: "https://bolna.ai/docs", label: "Docs" },
+  { href: "https://www.bolna.ai", label: "Home" },
+  { href: "https://www.bolna.ai/docs", label: "Docs" },
   { href: "/blog", label: "Blog" },
-  { href: "https://bolna.ai/pricing", label: "Pricing" },
+  { href: "https://www.bolna.ai/pricing", label: "Pricing" },
 ];
 
 export function SiteNav() {

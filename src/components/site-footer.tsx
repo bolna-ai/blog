@@ -5,16 +5,16 @@ const COLUMNS = [
   {
     title: "Product",
     links: [
-      { label: "Agents", href: "https://bolna.ai/agents" },
-      { label: "Pricing", href: "https://bolna.ai/pricing" },
-      { label: "Docs", href: "https://bolna.ai/docs" },
+      { label: "Agents", href: "https://www.bolna.ai/agents" },
+      { label: "Pricing", href: "https://www.bolna.ai/pricing" },
+      { label: "Docs", href: "https://www.bolna.ai/docs" },
     ],
   },
   {
     title: "Resources",
     links: [
       { label: "Blog", href: "/blog" },
-      { label: "Newsroom", href: "https://bolna.ai/newsroom" },
+      { label: "Newsroom", href: "https://www.bolna.ai/newsroom" },
       { label: "Platform", href: "https://platform.bolna.ai" },
     ],
   },
