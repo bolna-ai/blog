@@ -37,12 +37,17 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "Bolna Blog",
     type: "website",
+    // Absolute URL, not a bare "/images/..." path — with basePath set, a
+    // leading-slash relative URL resolves against metadataBase's origin and
+    // drops the /blog prefix (same gotcha documented in next.config.ts).
+    images: [`${SITE_URL}/images/og-home.png`],
   },
   twitter: {
     card: "summary_large_image",
     title: "Bolna Blog — Voice AI for India",
     description:
       "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
+    images: [`${SITE_URL}/images/og-home.png`],
   },
 };
 
