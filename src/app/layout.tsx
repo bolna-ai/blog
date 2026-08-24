@@ -19,7 +19,7 @@ const heading = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Voice AI Engineering & Product Updates — Bolna Blog",
+    default: "Bolna Blog — Voice AI for India",
     template: "%s — Bolna Blog",
   },
   description:
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Voice AI Engineering & Product Updates — Bolna Blog",
+    title: "Bolna Blog — Voice AI for India",
     description:
       "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
     url: SITE_URL,
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Voice AI Engineering & Product Updates — Bolna Blog",
+    title: "Bolna Blog — Voice AI for India",
     description:
       "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
   },
