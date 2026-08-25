@@ -127,15 +127,20 @@ export async function generateMetadata({
       title: post.title,
       description: post.excerpt,
       type: "article",
+      url: `${SITE_URL}/${post.slug}`,
       publishedTime: post.date,
       authors: [post.author],
-      images: post.coverImage ? [post.coverImage] : undefined,
+      // Fall back to the site's default OG image for posts with no
+      // coverImage (e.g. reduced-tcp-connections-voice-ai-fleet) — an
+      // absolute URL, not a bare "/images/..." path, for the same basePath
+      // reason as the root layout's default image.
+      images: post.coverImage ? [post.coverImage] : [`${SITE_URL}/images/og-home.png`],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : undefined,
+      images: post.coverImage ? [post.coverImage] : [`${SITE_URL}/images/og-home.png`],
     },
   };
 }

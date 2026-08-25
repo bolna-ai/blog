@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s — Bolna Blog",
   },
   description:
-    "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
+    "Engineering notes, product updates, and case studies from the team building Bolna's real-time voice AI infrastructure for calls, telephony, and LLMs.",
   alternates: {
     canonical: SITE_URL,
     types: {
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bolna Blog — Voice AI for India",
     description:
-      "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
+      "Engineering notes, product updates, and case studies from the team building Bolna's real-time voice AI infrastructure for calls, telephony, and LLMs.",
     url: SITE_URL,
     siteName: "Bolna Blog",
     type: "website",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Bolna Blog — Voice AI for India",
     description:
-      "Engineering notes and product updates from the team building Bolna's voice AI infrastructure.",
+      "Engineering notes, product updates, and case studies from the team building Bolna's real-time voice AI infrastructure for calls, telephony, and LLMs.",
     images: [`${SITE_URL}/images/og-home.png`],
   },
 };

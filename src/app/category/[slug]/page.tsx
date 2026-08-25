@@ -20,7 +20,7 @@ export async function generateMetadata({
   if (!category) return {};
   return {
     title: category,
-    description: `Posts filed under ${category} on the Bolna Blog.`,
+    description: `Explore ${category} articles from the Bolna Blog — engineering deep dives, product updates, and practical guides for building voice AI agents.`,
     alternates: {
       canonical: `${SITE_URL}/category/${slug}`,
       types: { "application/rss+xml": `${SITE_URL}/rss.xml` },
