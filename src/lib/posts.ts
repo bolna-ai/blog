@@ -14,6 +14,7 @@ export type PostMeta = {
   categories: string[];
   excerpt: string;
   coverImage?: string;
+  coverCaption?: string;
   sourceUrl?: string;
 };
 
@@ -50,6 +51,7 @@ export function getPostBySlug(slug: string): Post | null {
     categories: data.categories ?? [],
     excerpt: data.excerpt ?? "",
     coverImage: data.coverImage,
+    coverCaption: data.coverCaption,
     sourceUrl: data.sourceUrl,
     content,
   };

@@ -199,6 +199,7 @@ export default async function PostPage({
           </header>
 
           {post.coverImage && (
+            <figure className="my-8">
             <Image
               // Next 16's image optimizer, with basePath set, resolves local
               // images by the *prefixed* path — <Image src> itself must not
@@ -209,9 +210,17 @@ export default async function PostPage({
               alt={post.title}
               width={720}
               height={405}
-              className="my-8 w-full rounded-md border border-border bg-muted"
+              className="w-full rounded-md border border-border bg-muted"
               priority
             />
+            {/* Covers are archival images chosen for what they say about the
+                post, which only works if the reader is told what they are. */}
+            {post.coverCaption && (
+              <figcaption className="mt-3 text-sm text-muted-foreground">
+                {post.coverCaption}
+              </figcaption>
+            )}
+            </figure>
           )}
 
           <div className="prose">
