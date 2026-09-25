@@ -126,3 +126,13 @@ body {
 .prose :where(img) {
   border-radius: var(--radius-md);
 }
+
+/* Set by the "#card" image hint in post bodies: a small inset screenshot,
+   sized like a social card rather than a full-width figure. Left-aligned so
+   it lines up with the italic caption that usually follows it. */
+.prose :where(img.post-image-card) {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid hsl(var(--border));
+}

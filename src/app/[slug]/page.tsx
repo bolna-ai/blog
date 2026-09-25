@@ -45,14 +45,27 @@ const markdownComponents: Components = {
   // (unlike next/image or next/link) doesn't get basePath auto-prefixed —
   // every root-relative image reference in post content needs it spelled
   // out explicitly or it 404s once the app is mounted under /blog.
-  img: ({ src, alt, className }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={typeof src === "string" && src.startsWith("/") ? `${BASE_PATH}${src}` : src}
-      alt={alt ?? ""}
-      className={className}
-    />
-  ),
+  //
+  // A "#card" fragment on the path marks an image that illustrates rather
+  // than carries its section — a screenshot of a social post, say — and
+  // renders it small instead of at full prose width. Markdown has no way to
+  // size an image and this renderer strips raw HTML, so the hint rides on
+  // the URL; it's stripped back off before the src is written out.
+  img: ({ src, alt, className }) => {
+    const path = typeof src === "string" ? src : "";
+    const isCard = path.endsWith("#card");
+    const cleanPath = isCard ? path.slice(0, -"#card".length) : path;
+    const resolved = cleanPath.startsWith("/") ? `${BASE_PATH}${cleanPath}` : cleanPath;
+
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={typeof src === "string" ? resolved : src}
+        alt={alt ?? ""}
+        className={[className, isCard ? "post-image-card" : null].filter(Boolean).join(" ") || undefined}
+      />
+    );
+  },
   pre: ({ children }) => {
     const mermaidSource = getMermaidSource(children);
     if (mermaidSource) return <MermaidDiagram code={mermaidSource} />;
