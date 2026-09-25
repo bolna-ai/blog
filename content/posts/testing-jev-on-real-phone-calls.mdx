@@ -1,0 +1,140 @@
+---
+title: "Testing Jev on real phone calls"
+slug: "testing-jev-on-real-phone-calls"
+date: "2026-09-25T00:00:00.000Z"
+author: "Sanket Bhat"
+authorGithub: "https://github.com/san0808"
+authorAvatar: "https://github.com/san0808.png"
+categories: ["Engineering"]
+excerpt: "TypeSafe's Jev is pitched at exactly the decisions that sit around a phone call. We put it on three real jobs against 17 models: it is 1.7 to 3.3 times faster everywhere, level with the best on judging and extraction, and not ready for routing."
+---
+
+For the last week and a half, my timeline has been full of a model that can't talk.
+
+TypeSafe's launch video for Jev passed 40 million views on X in under a week, and Vercel said Jev drew more than twice as much interest from paid developer accounts in its first 24 hours as any previous model launch on its platform, OpenAI and Anthropic included. One developer used it for instant context compaction, scoring every tool call in an agent session and dropping the irrelevant ones instead of running a summarization prompt. Another tried it as an agent safety monitor, checking each action before it ran, and reported it caught most attacks with very few false blocks.
+
+![Vercel's post reporting Jev reached about 13% of paid teams on its AI Gateway in the first 24 hours, twice the GPT-5.6 family and six times Fable 5.1](/images/posts/testing-jev-on-real-phone-calls/vercel-jev-adoption.png)
+
+_[Vercel on X](https://x.com/vercel/status/2101077346203971900?s=20)_
+
+There was pushback too, and I think it was fair. The launch claim that Jev "can't hallucinate" got picked apart quickly. As one Hacker News commenter put it, Jev can't emit an invalid type, but it can still emit a wrong valid value.
+
+That comment is the whole reason this blogpost exists.
+
+At Bolna, our voice agents hold phone conversations, mostly in Hindi and Hinglish. Around every call sit smaller decisions a model has to make quickly: where the conversation goes next, whether the call went well, what the caller actually said they wanted. These are exactly the decisions Jev is pitched at. But a launch benchmark is someone else's workload. When a new kind of model promises to make our decisions faster, we test it on the real jobs before believing it.
+
+So I got nerd-sniped, and we put it on real calls.
+
+## What Jev actually is
+
+Jev is TypeSafe's first "System One" model. It is not an LLM. You give it some state and a set of typed questions, and it returns answers with calibrated probabilities, all computed in parallel, with no text generated. Input costs $0.042 per million tokens, and output is free.
+
+The name borrows from Kahneman's fast, intuitive System 1 thinking. The New Stack's framing, "a smart if statement," is the one that clicked for me. You don't ask Jev to explain anything. You ask it to pick, score, or answer yes or no, and your code decides what to do with the answer.
+
+That sounds narrow, and it is. It's also most of what happens around a phone call.
+
+## How we tested it
+
+We put Jev through three of those jobs, each against the model that job runs on today and up to nine others, 17 models in all:
+
+- **Routing**: 600 routing decisions from 136 real calls across 8 graph agents. We measured agreement with a fresh run of the router we use in production, gpt-4.1-mini. Also tested: gpt-4.1, gpt-4o-mini, gpt-5.4-nano, Gemini 3.1 Flash Lite, DeepSeek Chat, GLM-5.1, Gemma 4 26B-A4B, Qwen3.8-27B and gpt-oss-20b.
+- **Call judge**: 196 calls with human labels. This is the only job where we measured right and wrong, not agreement. Against the judge we run today, gpt-5.4-mini, plus gpt-4o, gpt-4.1-mini, gpt-5.4-nano, Qwen3-32B and Gemma 4 31B.
+- **Field extraction**: 775 call transcripts from 7 agents, with 2 to 7 fields per call depending on the agent. We measured agreement with the answers our production model, gpt-4.1-mini, gave on those calls. Also tested: Gemini Flash, Gemini 3.1 Flash Lite, Claude Sonnet 4.5, Claude Haiku 4.5, Gemma 4 31B, gpt-4o-mini and DeepSeek Chat.
+
+Every model was scored the way production scores, including tuning thresholds where production tunes them. Latency was measured from one machine over the public internet. We tested one version of Jev over a few days.
+
+We have no commercial relationship with TypeSafe.
+
+## The short version: it's fast
+
+Jev was faster on every job, by 1.7 to 3.3 times.
+
+![Bar chart of median end-to-end latency: Jev answers in 411ms on graph routing, 383ms on the call judge and 547ms on field extraction, against 962ms, 1250ms and 954ms for the model each job runs on today](/images/posts/testing-jev-on-real-phone-calls/latency-by-job.png)
+
+Accuracy is where it got interesting, because the answer was different for each job.
+
+## Routing: behind
+
+Our agents are graphs. Every turn, a model decides whether the call should move to one of the next nodes or stay where it is.
+
+Jev agreed with our current router on 72.7% of turns, eighth of ten models. The bigger problem is which half of the decision gets wrong.
+
+![Chart of routing recall on each half of the decision: Jev stays correctly about 94% of the time but moves to the next node when it should only about 52% of the time, the widest split of the ten models tested](/images/posts/testing-jev-on-real-phone-calls/routing-recall.png)
+
+When the call should move on, Jev moves only about half the time. When it should stay, it almost always does. On a live call, that is an agent that will not advance, and the caller ends up repeating themselves.
+
+The overall number hides this. 72.7% sounds like "a bit worse." What it actually means is "stuck."
+
+## Call judge: level with the best, and much faster
+
+After a call, we grade whether the agent got stuck in a loop. Because we have human labels for this, the score is [Cohen's kappa](https://en.wikipedia.org/wiki/Cohen%27s_kappa), where 0 is chance and 1 is perfect. Every model had its flag threshold tuned on half the calls and was measured on the other half, which is how our pipeline scores it.
+
+![Chart of Cohen's kappa against human labels: qwen3-32b at 0.471 and gemma4-31b at 0.435 lead, Jev is level with both at 0.416, and the OpenAI models including the production judge cluster between 0.240 and 0.304](/images/posts/testing-jev-on-real-phone-calls/call-judge-kappa.png)
+
+The models fall into two groups. Qwen3-32B and Gemma 4 31B, both self-hosted, lead by margins clear of noise, and Jev is statistically level with both. The OpenAI models we tried, including the one this job runs on today, cluster together lower down.
+
+Jev gets there in 383ms at about five cents per thousand calls. The two open models take seven to ten seconds to call on their own GPUs.
+
+## Field extraction: level with the best
+
+After a call, we pull 23 fields out of the transcript: did they ask for a callback, what is their sentiment, which course are they interested in.
+
+Jev is in the tied group at the top, with both Geminis and Claude Sonnet. It answers all 23 fields in one request, where today we make one call per group of fields.
+
+## What did not help
+
+I wanted routing to work, so we tried hard.
+
+**Reshaping the request.** [Jev's docs](https://docs.typesafe.ai/concepts/system-one) recommend splitting a decision into small questions and combining the answers in code. We built six versions of the routing request, including the ones the docs prescribe. All landed between 71.8% and 73.1%. Splitting the judge rubric into its six parts also did worse than asking one question.
+
+**Tuning the routing threshold.** Jev returns a full probability, so we swept the move-or-stay cut end to end. It only traded one routing error for the other.
+
+![Chart of a threshold sweep from more likely to move to more likely to hold: stay recall climbs from 84% to 97% while move recall falls from 61% to 41%, and total agreement stays flat at about 72.5% across the whole range](/images/posts/testing-jev-on-real-phone-calls/routing-threshold-sweep.png)
+
+Six designs and a full sweep, all landing in the same place, is about as clear a signal as you get that the problem isn't the prompt.
+
+## What I took away
+
+**Many independent questions suit it best.** Extraction asks two dozen unrelated things about one call. Jev answers them all in one parallel request, so it gets the speed at no accuracy cost.
+
+**Score every model the way production uses it.** Scoring the judge exactly as our pipeline does reshuffled the ranking and pointed to stronger options than the model we started with. The test of a challenger turned out to be a test of the incumbent too. That was the most useful thing we learned, and it had nothing to do with Jev.
+
+**Routing is where it falls short, and we could not fix that from our side.** Routing isn't a set of independent gut checks. It depends on where the conversation has been and where it's trying to go, which may be exactly the kind of judgment a fast, one-shot model gives up.
+
+## Caveats
+
+On routing and extraction, we measured agreement with the models we run, not correctness. Latency was measured from one machine over the public internet, not from production. Jev is less than two weeks old, and we tested one version over a few days. If you read this in a month, some of it may already be out of date.
+
+## Where this leaves us
+
+Jev is not a replacement for the model that talks to your caller, and on routing it is not ready. But where a job has many narrow questions, or a single yes/no that has to be fast, it already keeps up with the best models we tested at a fraction of their latency. LangChain's write-up calls it a complement to the model driving your agent, and that is where we landed too.
+
+Two questions stay open. The call judge needs a larger labelled set, since 196 calls cannot yet separate Jev from the open models. And TypeSafe has not said whether Jev can be fine-tuned. A decision model that could learn our routing at 400ms would change the routing answer.
+
+This is how every model earns its place in Bolna: on real calls, scored the way production scores, against the model it would replace. The timeline tells you what a model can do. A launch post tells you what its makers hope it will do. Only your own workload tells you what it will actually do.
+
+## Further reading
+
+### From TypeSafe
+
+- [Introducing System One Models and Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev): the launch post and the vendor's own claims.
+- [Jev documentation](https://docs.typesafe.ai/introduction) and its [patterns guide](https://docs.typesafe.ai/patterns), including the fan-out and confidence-gated routing designs we tested.
+
+### Independent write-ups
+
+- [TechCrunch: A new kind of AI model from a ChatGPT inventor is thrilling developers](https://techcrunch.com/2026/09/18/a-new-kind-of-ai-model-from-a-chatgpt-inventor-is-thrilling-developers/)
+- [Latent Space: a "System One Model" that only decides, classifies, routes and scores](https://www.latent.space/p/ainews-jev-a-system-one-model-that)
+- [LangChain: What Is Jev? A Guide to TypeSafe AI's System One Model](https://www.langchain.com/blog/building-a-harness-with-jev)
+- [TrueFoundry: What "System One Models" Actually Are](https://www.truefoundry.com/blog/typesafe-ai-jev)
+- [Pere Pages: What Jev actually is, and what is still just a claim](https://pearpages.com/blog/2026/09/16/jev-sorted-what-typesafes-system-one-model-actually-is-and-what-is-still-just-a-claim)
+- [Developers Digest: Jev benchmarked and priced](https://www.developersdigest.tech/blog/typesafe-jev-system-one-models-release-guide-2026), a summary of the vendor-reported numbers.
+- [MarkTechPost: A coding guide to Jev](https://www.marktechpost.com/2026/09/23/a-coding-guide-to-typesafe-ai-jev/), for hands-on examples.
+
+### On Bolna
+
+- [Graph agents](https://www.bolna.ai/docs/graph-agent/introduction) and [how edges and routing work](https://www.bolna.ai/docs/graph-agent/edges-and-routing): the routing job in this post.
+- [Using extractions](https://www.bolna.ai/docs/guides/prompting/using-extractions): the post-call extraction job.
+
+### Background
+
+- [Cohen's kappa](https://en.wikipedia.org/wiki/Cohen%27s_kappa), the agreement-beyond-chance score used for the judge.
