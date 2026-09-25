@@ -79,6 +79,8 @@ Jev gets there in 383ms at about five cents per thousand calls. The two open mod
 
 After a call, we pull 23 fields out of the transcript: did they ask for a callback, what is their sentiment, which course are they interested in.
 
+![Chart of exact field match against a fresh gpt-4.1-mini run with 95% intervals: gemini-flash, claude-sonnet, gemini-flash-lite and Jev are all statistically tied with production, while gemma4-31b, claude-haiku, gpt-4o-mini and deepseek-chat fall behind](/images/posts/testing-jev-on-real-phone-calls/field-extraction-agreement.png)
+
 Jev is in the tied group at the top, with both Geminis and Claude Sonnet. It answers all 23 fields in one request, where today we make one call per group of fields.
 
 ## What did not help
