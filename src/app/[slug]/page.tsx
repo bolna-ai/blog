@@ -10,8 +10,8 @@ import {
   getAllPosts,
   getPostBySlug,
   categorySlug,
-  COVER_SIZE,
   OG_DEFAULT_SIZE,
+  ogImageFor,
   type Post,
 } from "@/lib/posts";
 import { extractToc } from "@/lib/toc";
@@ -170,8 +170,8 @@ export async function generateMetadata({
 function socialImage(post: Post) {
   return post.coverImage
     ? {
-        url: post.coverImage,
-        ...COVER_SIZE,
+        url: ogImageFor(post.coverImage),
+        ...OG_DEFAULT_SIZE,
         type: "image/jpeg",
         alt: post.coverCaption ?? post.title,
       }

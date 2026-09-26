@@ -4,13 +4,22 @@ import matter from "gray-matter";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
-// Post covers are all produced by the same script at one size, and the
-// site's default OG image is its own. Social scrapers (LinkedIn especially)
-// are far more reliable at rendering a large card when the markup states the
-// image dimensions, so declare them rather than making every crawler fetch
-// and measure the file first.
-export const COVER_SIZE = { width: 1600, height: 900 };
+// Social scrapers (LinkedIn especially) are far more reliable at rendering
+// a large card when the markup states the image dimensions, so declare them
+// rather than making every crawler fetch and measure the file first.
 export const OG_DEFAULT_SIZE = { width: 1200, height: 630 };
+
+// The page cover and the social card have different jobs. The cover is shown
+// at up to 720px on a retina screen, so it wants resolution; the card is
+// fetched whole by every scraper, and WhatsApp in particular stops showing a
+// preview image somewhere around 300KB. So the cover script writes a second,
+// smaller `og.jpg` next to each `cover.jpg`, cropped to the 1.91:1 that
+// Facebook and X both crop toward anyway.
+export function ogImageFor(coverImage: string): string {
+  return coverImage.endsWith("/cover.jpg")
+    ? coverImage.replace(/\/cover\.jpg$/, "/og.jpg")
+    : coverImage;
+}
 
 export type PostMeta = {
   title: string;
