@@ -3,7 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { SITE_URL } from "@/lib/links";
+import { SITE_URL, TWITTER_HANDLE } from "@/lib/links";
 import { OG_DEFAULT_SIZE } from "@/lib/posts";
 import "./globals.css";
 
@@ -54,6 +54,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: TWITTER_HANDLE,
+    creator: TWITTER_HANDLE,
     title: "Bolna Blog — Voice AI for India",
     description:
       "Engineering notes, product updates, and case studies from the team building Bolna's real-time voice AI infrastructure for calls, telephony, and LLMs.",

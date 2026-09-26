@@ -17,7 +17,7 @@ import {
 import { extractToc } from "@/lib/toc";
 import { TableOfContents } from "@/components/table-of-contents";
 import { MermaidDiagram } from "@/components/mermaid-diagram";
-import { SITE_URL, BASE_PATH } from "@/lib/links";
+import { SITE_URL, BASE_PATH, TWITTER_HANDLE } from "@/lib/links";
 import type { Metadata } from "next";
 import type { Components } from "react-markdown";
 
@@ -155,6 +155,10 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
+      site: TWITTER_HANDLE,
+      // No per-author handles are recorded, so posts are credited to the
+      // Bolna account; an authorTwitter frontmatter field could override it.
+      creator: TWITTER_HANDLE,
       title: post.title,
       description: post.excerpt,
       images: [socialImage(post)],

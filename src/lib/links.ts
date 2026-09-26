@@ -16,4 +16,7 @@ export const BASE_PATH = "/blog";
 // though the bare-apex path would still resolve via that redirect.
 export const SITE_URL = `https://www.bolna.ai${BASE_PATH}`;
 
+// The Bolna account that X credits cards to.
+export const TWITTER_HANDLE = "@bolna_dev";
+
 export const RSS_PATH = `${BASE_PATH}/rss.xml`;
