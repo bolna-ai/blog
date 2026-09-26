@@ -6,7 +6,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import { getAllPosts, getPostBySlug, categorySlug, type Post } from "@/lib/posts";
+import {
+  getAllPosts,
+  getPostBySlug,
+  categorySlug,
+  COVER_SIZE,
+  OG_DEFAULT_SIZE,
+  type Post,
+} from "@/lib/posts";
 import { extractToc } from "@/lib/toc";
 import { TableOfContents } from "@/components/table-of-contents";
 import { MermaidDiagram } from "@/components/mermaid-diagram";
@@ -141,21 +148,39 @@ export async function generateMetadata({
       description: post.excerpt,
       type: "article",
       url: `${SITE_URL}/${post.slug}`,
+      siteName: "Bolna Blog",
       publishedTime: post.date,
       authors: [post.author],
-      // Fall back to the site's default OG image for posts with no
-      // coverImage (e.g. reduced-tcp-connections-voice-ai-fleet) — an
-      // absolute URL, not a bare "/images/..." path, for the same basePath
-      // reason as the root layout's default image.
-      images: post.coverImage ? [post.coverImage] : [`${SITE_URL}/images/og-home.png`],
+      images: [socialImage(post)],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [`${SITE_URL}/images/og-home.png`],
+      images: [socialImage(post)],
     },
   };
+}
+
+// The card image, stated in full: dimensions and type so a scraper can lay
+// the card out without fetching the file, and alt text so it isn't silent.
+// Falls back to the site's default OG image for a post with no coverImage —
+// an absolute URL, not a bare "/images/..." path, for the same basePath
+// reason as the root layout's default image.
+function socialImage(post: Post) {
+  return post.coverImage
+    ? {
+        url: post.coverImage,
+        ...COVER_SIZE,
+        type: "image/jpeg",
+        alt: post.coverCaption ?? post.title,
+      }
+    : {
+        url: `${SITE_URL}/images/og-home.png`,
+        ...OG_DEFAULT_SIZE,
+        type: "image/png",
+        alt: "Bolna Blog",
+      };
 }
 
 export default async function PostPage({

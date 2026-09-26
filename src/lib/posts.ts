@@ -4,6 +4,14 @@ import matter from "gray-matter";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 
+// Post covers are all produced by the same script at one size, and the
+// site's default OG image is its own. Social scrapers (LinkedIn especially)
+// are far more reliable at rendering a large card when the markup states the
+// image dimensions, so declare them rather than making every crawler fetch
+// and measure the file first.
+export const COVER_SIZE = { width: 1600, height: 900 };
+export const OG_DEFAULT_SIZE = { width: 1200, height: 630 };
+
 export type PostMeta = {
   title: string;
   slug: string;
