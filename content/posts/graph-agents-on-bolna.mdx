@@ -1,0 +1,195 @@
+---
+title: "Graph Agents: Where it all started?"
+slug: "graph-agents-on-bolna"
+date: "2026-10-08T00:00:00.000Z"
+author: "Sonam Bala"
+authorAvatar: "https://secure.gravatar.com/avatar/b1402fbf51ad409a8f9c2ae56ed9f0627f4510724428913e0efa9d5662b46a75?s=96&d=mm&r=g"
+categories: ["Features"]
+coverImage: "/images/posts/graph-agents-on-bolna/cover.jpg"
+coverCaption: "A telephone operator at her switchboard in 1922, routing each call down a cord you can see. Graph Agents bring that back to the voice call."
+excerpt: "Voice agents break when one long prompt has to carry every step of a call. Graph Agents split the call into nodes with one job each, an idea seventy years in the making. Here is where it came from and how to build one on Bolna."
+---
+
+Very rarely do we come across voice agents that do not break when the conversations venture into specific details with multiple turns involved. Be it a collections call where the agent gets the greetings right but forgets to verify identity despite having a cooperative callee on the other side, in a bid to confirm the due payment. This is observed even if there's a detailed prompt in the background that covers every single edge case possible.
+
+Causation? The prompt was perhaps a kilometre long, and the agent kept scrambling for the right response and skipped parts despite the tokens getting maxed out. Getting lost while scrolling the source material right there, very humane of the agents, no?
+
+![A long collections prompt where the line "Verify the caller before sharing any details" is skipped, next to a graph where greet, verify_identity, disclosure, due_amount and close are nodes the call must pass through in order](/images/posts/graph-agents-on-bolna/prompt-vs-graph.png)
+
+_The same collections call two ways: an instruction buried somewhere within one long prompt, and a graph where verification is a step the call has to pass through._
+
+What about the agents that didn't break? What we saw in the past were mostly linear use cases where turns were few and the end goal was either a single-point agenda or just one task. The agents only broke when the variables in the call became too many to handle, and the agents began getting confused the moment the call was off-script. The fix? Perhaps reading the line step by step and doing the guesswork to get the RCA right. Weren't the agents built to make our jobs simpler?
+
+Well, you have Graph Agents for that. They break the call into smaller chunks or steps that you can see and control before deploying.
+
+![One long prompt, where every step competes for attention, splitting into five focused nodes: Greet, Verify, Collect, Confirm and Close](/images/posts/graph-agents-on-bolna/one-prompt-five-nodes.png)
+
+_One prompt carrying every step, against the same call split into five nodes._
+
+## An old idea with new applications never gets old
+
+Breaking long, complex tasks into smaller, doable actionables isn't really a new concept. Veterans did it all the time, focussing on what was achievable for each step. Along came the idea of a graph, which is older than most of the software programs that it now facilitates.
+
+The traces start with George Mealy and Edward Moore, who published the two state-machine models in '55 and '56. Named after them, the system resides in one state and transitions into another whenever a deterministic rule instructs it. That's also what happens on Bolna's voice agents, which have to handle more than one variable in a single call, impersonating humans for a better outcome.
+
+During 1966-72, a few researchers at Stanford Research Institute came up with Shakey, a first-of-its-kind mobile robot that had displayed the capability of reasoning. Yes, this was more than half a century ago. It followed the A\* search algorithm to move around, and STRIPS to plan its actionables. Every action was defined with a specific agenda and what changed, thus establishing that planning a route and its actions could all be compiled in one resident system.
+
+What started from there soon followed its course to everyday software. The first industry that it disrupted was game design, where designers specifically used this to build behaviour trees and gamify the next move of any character in the game. Came 2014, Airbnb deployed graphs of dependent steps in Apache Airflow.
+
+Soon, the ReAct paper, published in 2022, exhibited that language models could also reason, act, look at the results and follow the next steps accordingly. That's not AGI, but something if we look at how far we have come to establish how agents could be formed with determined values. Then in 2024, LangGraph and similar frameworks just standardised stateful graphs. The idea floated around for 70 long years by now, and found applications in different domains, only for an LLM to be placed inside one so that you could build an agent that truly listened to what your customers are saying, reasoned responsibly and responded accordingly, not just what you have fed the agent word by word.
+
+![Timeline from Mealy and Moore machines in 1955 to 56, through Shakey, A* and STRIPS in 1966 to 72, behaviour trees in games in the 2000s, Apache Airflow in 2014, ReAct in 2022 and LangGraph in 2024, to Graph Agents on Bolna in 2026](/images/posts/graph-agents-on-bolna/seventy-year-timeline.png)
+
+_A convergence of ideas over seventy years that lays the foundation for Graph Agents._
+
+## The problem voice has always had
+
+When Voice AI became the default (or started getting widely accepted) as a mode of reaching out to people at scale, the tension was palpable. The industry had seen IVR menus, once standardised with VoiceXML in the early 2000s, which were divinely easy to audit, but rigidity got to them. Fixed responses on a few keys, while anything that wasn't covered would get only apologies.
+
+With the onset of LLM agents, that became obsolete, with a high bar of reasoning for these conversations. The good agents had to have natural speech and code-switching, but having the instructions coded in a single, long prompt kind of lost the control that was once a given with IVRs. And in certain industries, the control wasn't optional but a mandatory compliance before deployment, e.g. lending, insurance or banking as a whole.
+
+And now that we combine the same with the momentum of the deployments, voila, you have pressure. A study published in 2009 demonstrated that speaker behaviour was uniform across ten languages, i.e. nobody wanted overlapping turns or long silences, remarking latency. The usual gap sat around 200 ms, and every decision was awaited on an LLM to come in that would further add to the delay.
+
+![On the left, a classic IVR main menu routing "press 1" to Billing, "press 2" to Support and anything else to "Sorry, I didn't get that". On the right, a caller speaking freely and a graph agent routing by intent to a billing node or a support node](/images/posts/graph-agents-on-bolna/ivr-vs-graph-agent.png)
+
+_A classic IVR routes on keypresses. A graph agent lets the caller speak and routes on intent._
+
+## The solution: every single node in the flow gets one job
+
+This is what Graph Agents solves for, precisely. It takes a problem statement with a lot of variables and splits the call into nodes, as many as required. Every node gets one dedicated job description and does precisely what it is instructed to do with defined exit rules. Every step, be it greetings, qualification, collection nudge or confirmations as well as closing, everything becomes a node without exceptions, with transitions as the thread joining them.
+
+In the event of failure, the RCA points you to exactly what broke. You can change it without touching the rest. You can equate it with the structure of an IVR, and the caller continues talking as expected with the outcome you once desired, without having to depend on a human.
+
+## How to get started with Graph Agents on Bolna
+
+![A production support-line graph in the Bolna editor: a greeting start node, an after-hours static audio node, a language router, LLM nodes for verifying the caller, order IDs, refunds and rescheduling, function nodes for order lookup, slot checks and booking, and three closing nodes for escalate, callback confirmed and goodbye](/images/posts/graph-agents-on-bolna/support-line-graph.png)
+
+_A production graph for a support line with 16 nodes and 31 transitions. However large the canvas gets, each node still does one dedicated job with precise closing depending on the steps required by the conversation at the specific turn._
+
+### Nodes
+
+An LLM node sends its prompt and the conversation so far to the model, which writes the reply, and most of the call happens here. A static node plays audio that Bolna generates from your text in the agent's voice when you save the agent, then serves from cache. At runtime there is no LLM or TTS call, so it plays in about 50 milliseconds against roughly 800 for an LLM node. A router node never speaks. It reads the conversation and dispatches it to the right node within the same turn.
+
+The editor also gives each node a role badge, so a flow reads at a glance: Start where the call begins, Closing where it ends, and Function, Static Audio or LLM for the steps in between.
+
+![Five nodes in a row, each with its role badge: a greeting Start node, an answer_question LLM node, a Static Audio node, a create_ticket Function node and a transfer Closing node](/images/posts/graph-agents-on-bolna/role-badges.png)
+
+_The five role badges: Start, LLM, Static Audio, Function and Closing._
+
+### Transitions
+
+Intent transitions let the routing LLM judge whether the caller's reply matches a condition, such as "Customer provides a valid order number." Rule transitions check variables like the current hour or a retry count. Always transitions fire every time, for nodes with a single exit. Event transitions ignore speech and fire only when your system sends an event through Bolna's API, and only on the node that is active.
+
+![The edge inspector set to an Expression condition with AND logic, one condition on the custom variable recipient_data.current_hour with the eq operator, plus Add Condition and Priority fields](/images/posts/graph-agents-on-bolna/rule-transition-inspector.jpg#card)
+
+_The edge inspector builds a Rule transition, with the AND/OR selector and a condition row._
+
+### Routing order
+
+After each caller message, Rule and Always transitions are checked first, in priority order. A match moves the call in under a millisecond, at no LLM cost. Only when nothing deterministic matches does the routing LLM step in, which typically takes 150 to 300 milliseconds. If nothing fits, the agent stays on the current node and asks again naturally.
+
+![A caller message goes to a Rule or Always check. If it matches, the call moves instantly to the next node with no LLM call. If not, the routing LLM decides, either moving to the next node when an intent matches or staying on the node to ask again when nothing fits](/images/posts/graph-agents-on-bolna/routing-turn.png)
+
+_One routing turn following deterministic rules first, the routing LLM only when they don't match._
+
+![Log-scale chart of time per step: a Rule or Always transition takes under 1 ms, a static node about 50 ms, a routing LLM decision 150 to 300 ms and an LLM node reply about 800 ms, against a natural pause between turns of about 200 ms](/images/posts/graph-agents-on-bolna/latency-per-step.png)
+
+_Rules and static nodes add almost no latency to a turn, while each LLM step adds hundreds of milliseconds. That is why the routing LLM only runs when no rule matches._
+
+### Per-node control
+
+Set a node's interruption threshold to 0 and the caller cannot cut it off, so a disclosure on a static node plays in full on every call. Intent transitions can extract values as they route, turning a spoken order number into `{{order_id}}` for later prompts and API tools without a separate extraction step. Built-in variables like the current hour and weekday let you send after-hours callers to a callback flow, provided the call carries a timezone. Without one, time-based rules never match. Each node can also override the routing model, attach its own knowledge base, replay itself after silence, or force a transfer function so the handoff always happens.
+
+## Where it fits
+
+Collections is the clearest case. The agent verifies the borrower, plays the disclosure on an uninterruptible static node, states the due amount and sends a payment link. When the payment webhook fires, an Event transition moves the call to confirmation without the caller having to say "I've paid." A request for more time routes to a promise-to-pay node instead.
+
+![A collections graph: Verify identity, then a Disclosure static node, then Due amount, then a Send payment link function. Asking for more time branches from Due amount to Promise to pay, and the event payment_completed moves Send payment link to Payment confirmed](/images/posts/graph-agents-on-bolna/collections-graph.png)
+
+_A collections graph, with an event transition waiting on "payment_completed"._
+
+Lead qualification gives each question its own node, saves budget and timeline as variables, and sends hot leads straight to a live transfer. Support agents validate an order number before looking up its status and escalate after two failed attempts. Appointment booking checks the hour and weekday before offering slots, while onboarding and KYC walk through each detail in sequence so nothing is skipped.
+
+For an agent that only answers questions, a regular conversation agent is enough. Graph agents earn their place when a call has stages with different goals, or when some decisions belong to rules rather than the model's best guess.
+
+## How to build your first Graph Agent
+
+![Seven steps from an empty canvas to a saved agent: open the editor, set up the agent, add nodes, connect transitions, set test values, validate, and test and save](/images/posts/graph-agents-on-bolna/build-steps.png)
+
+_How to get started from an empty canvas to a saved agent._
+
+### Open the editor
+
+In the left sidebar, expand Build, click Graph Agent and then Create. The dialog lets you start from a blank graph or a ready-made template. The editor has three areas: the canvas in the centre, the inspector on the right and the toolbar along the top.
+
+![The Graph Agents page in the Bolna dashboard, listing Collections reminder, Lead qualification and Appointment booking agents, with the Create button at the top right](/images/posts/graph-agents-on-bolna/graph-agents-page.png)
+
+_The Graph Agents page, with Create at the top right._
+
+![The graph editor toolbar: Add node, import, export, auto-layout, undo, redo, search, variables, zoom out, zoom in, fit to screen, version history, validate and save](/images/posts/graph-agents-on-bolna/editor-toolbar.jpg)
+
+_The toolbar, from Add node through Version history, Validate and Save._
+
+### Set up the agent
+
+With nothing selected, the inspector opens on Agent setup. Add your welcome message and a global prompt for anything that applies on every step, such as persona, language rules, pronunciation and guardrails, then choose your LLM and voice. Keep the global prompt short. It travels with every LLM call, so each extra line is paid for on every node. Save the specifics for the nodes themselves.
+
+### Add your nodes
+
+Double-click an empty part of the canvas or click Add node, then pick LLM Node, Static Audio Node or Router Node. A good node prompt states its purpose, the exact question to ask, what counts as a valid answer and what to do when the caller gets it wrong. For an order number, that means asking for all 10 digits, asking once more if the count is off and offering a transfer after two failed attempts.
+
+Each node only gets one job to do. A node that collects an order number should not also ask for the caller's name or reason for calling.
+
+### Connect them with transitions
+
+Click a node to reveal its output handle, the small circle on its bottom edge, and drag from it to create a transition. Pick a trigger and describe when it should fire. Write Intent conditions as facts about what happened, such as "Customer provides a valid order number," since that text becomes the description the routing LLM reads. Keep conditions specific enough that two of them cannot both be true at once.
+
+![An intent_check LLM node with three outgoing Intent transitions, one to a transfer closing node when the user wants to speak to someone, one to a create_ticket LLM node when the user has a specific issue, and a third when the user is satisfied](/images/posts/graph-agents-on-bolna/intent-transitions.jpg)
+
+_A node with three outgoing Intent transitions, each labelled with its condition._
+
+### Set test values
+
+Click Variables in the toolbar. The editor finds every `{{variable}}` token in your prompts, welcome message and transitions, so you can fill in realistic values like a customer name or order ID before testing. These values stay in your browser and are not saved into the agent.
+
+![The Variables panel listing the auto-discovered tokens customer_name and order_id, each with a value field and a type selector set to auto](/images/posts/graph-agents-on-bolna/variables-panel.jpg#card)
+
+_The Variables panel with auto-discovered tokens._
+
+### Validate, test and save
+
+Click Validate to check the graph. Errors block saving until they are fixed. Warnings do not, though they are usually worth a look. Click any issue and the canvas scrolls to the node or transition at fault, with the inspector open on it.
+
+Then open the Test agent tab. Chat with agent runs the flow as text and shows which node is active on each turn, while Get call from agent places a live call that behaves exactly as it would in production.
+
+![The Test agent tab of the inspector, with a Get call from agent button and a Chat with agent button](/images/posts/graph-agents-on-bolna/test-agent-panel.jpg#card)
+
+_The Test agent panel with its chat and call options._
+
+Every save creates a snapshot in Version history, and restoring one adds it as a new save without erasing the record. Once a flow works, export it as JSON and import it into your next agent, so you never start from an empty canvas.
+
+## Build calls that follow the plan
+
+[Build your first Graph Agent](https://www.bolna.ai/docs/graph-agent/introduction?utm_source=blog&utm_medium=organic&utm_campaign=graph-agents)
+
+## Sources
+
+-   [Bolna docs: Graph Agents introduction](https://www.bolna.ai/docs/graph-agent/introduction)
+-   [Bolna docs: Static nodes](https://www.bolna.ai/docs/graph-agent/static-nodes)
+-   [Bolna docs: Managing nodes](https://www.bolna.ai/docs/graph-agent/managing-nodes)
+-   [Bolna docs: Managing transitions](https://www.bolna.ai/docs/graph-agent/managing-transitions)
+-   [Bolna docs: Edges and routing](https://www.bolna.ai/docs/graph-agent/edges-and-routing)
+-   [Bolna docs: Debugging (routing latency)](https://www.bolna.ai/docs/graph-agent/debugging)
+-   [Bolna docs: Using the editor](https://www.bolna.ai/docs/graph-agent/using-the-editor)
+-   [Bolna docs: Variables](https://www.bolna.ai/docs/graph-agent/variables)
+-   [Bolna docs: Validation](https://www.bolna.ai/docs/graph-agent/validation)
+-   [Bolna docs: Testing](https://www.bolna.ai/docs/graph-agent/testing)
+-   [Bolna docs: Version history](https://www.bolna.ai/docs/graph-agent/version-history)
+-   [Bolna docs: Import and export](https://www.bolna.ai/docs/graph-agent/import-export)
+-   [Nilsson (ed.), Shakey the Robot, SRI Technical Note 323 (1984)](https://ai.stanford.edu/~nilsson/OnlinePubs-Nils/shakey-the-robot.pdf)
+-   [IEEE Milestone: Shakey, the World's First Mobile Intelligent Robot](https://ieeemilestones.ethw.org/Milestones:Shakey:_The_World%E2%80%99s_First_Mobile,_Intelligent_Robot,_1972)
+-   [Stivers et al., Universals and cultural variation in turn-taking in conversation, PNAS (2009)](https://doi.org/10.1073/pnas.0903616106)
+-   [Levinson, Turn-taking in human communication, Trends in Cognitive Sciences (2016)](https://doi.org/10.1016/j.tics.2015.10.010)
+-   [Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models (2022)](https://arxiv.org/abs/2210.03629)
+-   [Apache Airflow project history](https://airflow.apache.org/)
+-   [W3C, Voice Extensible Markup Language (VoiceXML) 2.0 (2004)](https://www.w3.org/TR/voicexml20/)
