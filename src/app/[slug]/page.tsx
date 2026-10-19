@@ -136,9 +136,15 @@ export async function generateMetadata({
   const post = getPostBySlug(slug);
   if (!post) return {};
   const title = post.seoTitle ?? post.title;
+  // Every tab should say "voice agents": titles that already do get the
+  // short " — Bolna Blog" suffix, the rest get the layout's
+  // " — Bolna Voice Agents Blog". Keep either under 70 characters.
+  const pageTitle = /voice (ai )?agents?/i.test(title)
+    ? { absolute: `${title} — Bolna Blog` }
+    : title;
   const description = post.description ?? post.excerpt;
   return {
-    title,
+    title: pageTitle,
     description,
     authors: [{ name: post.author }],
     alternates: {
