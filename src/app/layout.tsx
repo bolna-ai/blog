@@ -27,8 +27,8 @@ const OG_IMAGE = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Bolna Blog — Voice AI for India",
-    template: "%s — Bolna Blog",
+    default: "Bolna Voice Agents Blog — Voice AI for India",
+    template: "%s — Bolna Voice Agents Blog",
   },
   description:
     "Engineering notes, product updates, and case studies from the team building Bolna's real-time voice AI infrastructure for calls, telephony, and LLMs.",

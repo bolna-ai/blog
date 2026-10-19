@@ -135,17 +135,25 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return {};
+  const title = post.seoTitle ?? post.title;
+  // Every tab should say "voice agents": titles that already do get the
+  // short " — Bolna Blog" suffix, the rest get the layout's
+  // " — Bolna Voice Agents Blog". Keep either under 70 characters.
+  const pageTitle = /voice (ai )?agents?/i.test(title)
+    ? { absolute: `${title} — Bolna Blog` }
+    : title;
+  const description = post.description ?? post.excerpt;
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: pageTitle,
+    description,
     authors: [{ name: post.author }],
     alternates: {
       canonical: `${SITE_URL}/${post.slug}`,
       types: { "application/rss+xml": `${SITE_URL}/rss.xml` },
     },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       type: "article",
       url: `${SITE_URL}/${post.slug}`,
       siteName: "Bolna Blog",
@@ -159,8 +167,8 @@ export async function generateMetadata({
       // No per-author handles are recorded, so posts are credited to the
       // Bolna account; an authorTwitter frontmatter field could override it.
       creator: TWITTER_HANDLE,
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       images: [socialImage(post)],
     },
   };
@@ -197,8 +205,35 @@ export default async function PostPage({
   if (!post) notFound();
   const toc = extractToc(post.content);
 
+  // BlogPosting structured data so search engines can show the post's
+  // headline, date, author and image. Built only from frontmatter fields.
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description ?? post.excerpt,
+    datePublished: post.date,
+    author: { "@type": "Person", name: post.author },
+    publisher: {
+      "@type": "Organization",
+      name: "Bolna",
+      url: "https://www.bolna.ai",
+    },
+    image: socialImage(post).url.startsWith("/")
+      ? `${SITE_URL}${socialImage(post).url}`
+      : socialImage(post).url,
+    mainEntityOfPage: `${SITE_URL}/${post.slug}`,
+    url: `${SITE_URL}/${post.slug}`,
+  };
+
   return (
     <div className="mx-auto px-4 py-6 lg:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="relative flex justify-center">
         <TableOfContents items={toc} />
         <article className="w-full max-w-3xl">
