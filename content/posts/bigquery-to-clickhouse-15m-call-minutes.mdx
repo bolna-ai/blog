@@ -1,5 +1,6 @@
 ---
 title: "BigQuery to ClickHouse at 15M Call Minutes a Day: What Broke, What We Fixed, and How We Cut Costs 6x"
+seoTitle: "BigQuery to ClickHouse at 15M Call Minutes a Day"
 slug: "bigquery-to-clickhouse-15m-call-minutes"
 date: "2026-09-28T00:00:00.000Z"
 author: "Vikram"
@@ -9,6 +10,7 @@ categories: ["Engineering"]
 coverImage: "/images/posts/bigquery-to-clickhouse-15m-call-minutes/cover.jpg"
 coverCaption: "A US Census Bureau card sorter in 1954, dropping each punch card into one of its pockets. Keeping exactly one version of every record is still the expensive part."
 excerpt: "Our Datastream to BigQuery pipeline was delivering call data 5-15 minutes late and the bill kept climbing. Moving analytics to ClickHouse Cloud, and writing less data in the first place, made call data real time and cut costs to roughly a sixth."
+description: "Our BigQuery pipeline delivered call data 5-15 minutes late. Moving to ClickHouse Cloud made it real time and cut costs to roughly a sixth."
 ---
 
 _At 15 million call minutes a day, our analytics pipeline was delivering call data 5-15 minutes after the call ended, and the BigQuery bill kept climbing. We replicated Postgres into ClickHouse Cloud with ClickPipes, moved dashboards off raw CDC tables, and changed what our application writes in the first place. Here is what broke along the way, and what the pipeline looks like now._

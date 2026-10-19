@@ -23,6 +23,9 @@ export function ogImageFor(coverImage: string): string {
 
 export type PostMeta = {
   title: string;
+  // Optional shorter <title> for search results when the headline is too
+  // long to fit with the " — Bolna Blog" suffix (keep it under 58 chars).
+  seoTitle?: string;
   slug: string;
   date: string;
   author: string;
@@ -30,6 +33,9 @@ export type PostMeta = {
   authorGithub?: string;
   categories: string[];
   excerpt: string;
+  // Optional meta description (110-155 chars). Falls back to the excerpt,
+  // which on posts imported from WordPress is cut off mid-sentence.
+  description?: string;
   coverImage?: string;
   coverCaption?: string;
   sourceUrl?: string;
@@ -60,6 +66,7 @@ export function getPostBySlug(slug: string): Post | null {
   const { data, content } = matter(raw);
   return {
     title: data.title,
+    seoTitle: data.seoTitle,
     slug: data.slug ?? slug,
     date: data.date,
     author: data.author,
@@ -67,6 +74,7 @@ export function getPostBySlug(slug: string): Post | null {
     authorGithub: data.authorGithub,
     categories: data.categories ?? [],
     excerpt: data.excerpt ?? "",
+    description: data.description,
     coverImage: data.coverImage,
     coverCaption: data.coverCaption,
     sourceUrl: data.sourceUrl,
