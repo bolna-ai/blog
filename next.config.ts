@@ -72,6 +72,9 @@ const nextConfig: NextConfig = {
       { source: "/your-engineering-team-can-build-voice-ai-stack", destination: "/should-your-engineering-team-build-voice-ai-stack", permanent: true },
       { source: "/voice-ai-platform-bolna-vs-retell", destination: "/bolna-vs-retell-voice-ai-platform", permanent: true },
       { source: "/ai-hiring-software-revolutionises-recruitment-processes", destination: "/ai-hiring-software-transforms-recruitment", permanent: true },
+      // Never a real post: technohelps.com links here by mistake. Send those
+      // readers to the closest real post, our OpenAI Realtime India tests.
+      { source: "/gpt-realtime-translate-indian-languages", destination: "/bolna-launches-openai-realtime-voice-ai-models-india", permanent: true },
     ];
   },
 };
