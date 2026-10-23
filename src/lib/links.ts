@@ -1,5 +1,5 @@
 export const SLACK_INVITE_URL =
-  "https://join.slack.com/t/bolnabuilders/shared_invite/zt-42zi57jyd-3yt1XDWq3kWBLj1puqq2fQ";
+  "https://www.bolna.ai/join-slack";
 
 // Single source of truth for the app's basePath (also used by
 // next.config.ts). basePath only auto-prefixes next/link, next/image, and
