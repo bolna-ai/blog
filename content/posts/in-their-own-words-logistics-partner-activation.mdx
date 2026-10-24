@@ -1,0 +1,99 @@
+---
+title: "Bolna, In Their Own Words: Getting Logistics Partners to Their First Order"
+slug: "in-their-own-words-logistics-partner-activation"
+date: "2026-10-23T00:00:00.000Z"
+author: "Bolna Team"
+categories: ["Use cases"]
+coverImage: "/images/posts/in-their-own-words-logistics-partner-activation/cover.jpg"
+coverCaption: "A Bell System service truck from 1936. Every fleet, then and now, runs on partners who actually show up for the work."
+excerpt: "How one of India's largest intra-city logistics platforms used a Bolna Graph Agent to call thousands of onboarded partners who had never taken an order, and why splitting the results by vehicle type turned one script into two strategies."
+---
+
+_This is the first edition of "Bolna, In Their Own Words". Every week, we pick one problem we've tackled with a team we partner with and share our learnings._
+
+## Approaching the festive season
+
+Every festive season, India's logistics networks get stress-tested. Amazon India alone is adding 1.6 lakh people this festive season, and Adecco estimates a 10-15% gap between demand and supply in peak frontline roles.
+
+For one of India's largest intra-city logistics platforms (Logistics Co.), a similar crunch existed. Thousands of truck and two-wheeler owners had downloaded the partner app, cleared verification and finished onboarding. However, they had not taken their first order.
+
+Beyond the spend on acquisition, the more pressing need for the platform was that these partners had to start taking orders to serve the anticipated demand.
+
+## Status quo: adding more callers
+
+Before Bolna, getting those partners to a first order was a Herculean task. This was primarily due to the scale of running things, but not necessarily getting clear actionables.
+
+A central supply team leaned on 300-500 outsourced agents. Each caller got one to three attempts before the team moved on to the next name. City teams of five to ten callers spent 10-15% of their week on activation. In peak season that rose to 30%, just when their bandwidth was needed elsewhere.
+
+Every new caller needed two weeks of training and a week of shadowing before getting a target in week four. The script they learned was an 8-9 minute walkthrough of the app.
+
+The effort to train, scale, systemise and synthesise learnings made the team look elsewhere.
+
+## The big switch
+
+Logistics Co. came to us with the brief to build an agent which only requires training once and can run at any volume.
+
+We built this partner activation agent as a [Graph Agent](https://www.bolna.ai/blog/graph-agents-on-bolna). Each stage of the conversation, from greeting and identifying the blocker to walking through the fix and closing, is its own node with its own routing. Partners were called in batches, thousands at a time, with no ceiling on how many conversations could run at once. Anyone who connected but still hadn't taken an order got a follow-up call two days later.
+
+This time the measurement was built in from day one. Every batch had a holdout group that wasn't called. A partner counted as converted only if they took a first order within 14 days. Every conversation was transcribed and run through Extractions, which pulled out each partner's blocker, intent and outcome as structured data.
+
+The partners mostly didn't seem to notice they were talking to an AI. They talked to the agent the way they'd talk to anyone from the platform.
+
+## What puzzled us
+
+The first readout was underwhelming. Across every partner called, activation barely moved.
+
+However, once we split by vehicle type, the data told two completely different stories.
+
+The same agent, running the same script, gave very different results in two segments, with one group responding strongly and the other not responding at all. A blended average would have hidden both facts. This insight, surfaced by our team, pointed the work in a meaningful direction.
+
+## Insights that these conversations provided
+
+This is what we heard from tens of thousands of partner calls.
+
+**Truck partners were stuck.** Many were less comfortable with the app and were more likely to walk into a city office for help. Onboarding had taught both segments the same way, but for truck owners it hadn't been enough. This segment needed dedicated support and intervention, which is exactly what the agent provided.
+
+**Two-wheeler partners weren't stuck at all.** They knew the app. What held them back was whether the platform was worth their time. Was there demand in their area? Did a competing platform pay better? A call explaining the app was not designed to address those questions.
+
+Across both groups, the same three questions came up again and again: where the work is, what they can earn and when to log in.
+
+However, we also clearly understood that questions about thin demand in their area or competition from other platforms were a problem better tackled by the supply ops team.
+
+## Going forward: a single script became two strategies
+
+Because the agent is a graph, fixing it didn't mean starting over. The team reworked individual nodes and kept the rest.
+
+-   **The script got shorter.** The eight-minute walkthrough gave way to a conversation that gets to the point.
+-   **More calling spent on trucks,** where the uplift is tangible and higher value.
+-   **A new two-wheeler flow** that leads with demand hotspots and earning potential, not an app tour.
+-   **A product backlog built from partner conversations.** Concerns about demand and fares now come from thousands of transcripts, not from anecdotes passed up by city teams.
+-   **Festive capacity without festive hiring.** When volumes spike, there's no three-week ramp for Logistics Co. to onboard new staff. Bolna's agent handles the extra calling volume.
+
+The old process couldn't have produced any of these decisions because it never generated the evidence for them.
+
+## Before and after Bolna
+
+|  | Before | With Bolna |
+| --- | --- | --- |
+| Who makes the calls | 300-500 outsourced agents, plus city teams | One Graph Agent, trained once |
+| Attempts | One to three per partner | Thousands per batch, with a follow-up call two days later |
+| Ramp-up | Two weeks of training and a week of shadowing | None, even when volumes spike |
+| Script | An 8-9 minute app walkthrough | A shorter conversation, different for trucks and two-wheelers |
+| Measurement | No holdout | A holdout group in every batch, first order within 14 days |
+| What the team learns | Anecdotes passed up by city teams | Blocker, intent and outcome extracted from every call |
+
+## In their words
+
+> "We moved to voice AI to replace a calling process that was expensive to train and hard to standardise. With Bolna, we hear from thousands of partners and can focus on critical fixes."
+>
+> — Lifecycle Lead, Logistics Co.
+
+## What's next
+
+We're working with the platform's team to bring dormant partners back on the road before the Diwali rush. With demand outrunning supply, every partner returning to the platform is a win.
+
+Every ops-heavy business has a list of people who said yes but haven't taken the next step (a pain we're all familiar with). These include stalled loan applications, abandoned carts and onboarded workers who never showed up.
+
+The usual answer is to call them. The better answer is to call all of them, measure it properly and listen to what they say. Some of what you hear can be fixed on the call, and the rest tells you exactly what to fix in the product. While calling is not always the answer, it can get you closer to what you seek.
+
+Not sure where to start? Our one-month [Pilot programme](https://www.bolna.ai/pilots) gets your first agent live with a dedicated team alongside you.
