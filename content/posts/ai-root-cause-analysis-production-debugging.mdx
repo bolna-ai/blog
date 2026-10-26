@@ -188,29 +188,3 @@ A production debugging agent becomes useful when it is constrained enough to be 
 The result is not an autonomous engineer and does not need to be. It is a read-only investigator that can collect evidence, follow a repeatable method, and give the next person a useful starting point. Every incident leaves behind a note, so the next investigation starts with more context than the last.
 
 It also takes the job seriously. Someone once tagged it with nothing but "what's up?" Twenty-one seconds later, it posted a formal verdict: "Not an issue — the flagged message contains no report of a fault." Fair enough.
-
-## Frequently asked questions
-
-### Can the AI agent change production systems?
-
-No. The model has no write tools, production credentials are read-only, and the host cannot push to product repositories. The Python harness performs a small set of explicit writes after the model finishes.
-
-### How does the agent avoid inventing a root cause?
-
-It must investigate before making a causal claim, attach an artifact to every root-cause bullet, test a competing explanation, and state confidence. Unsupported claims become open questions, and an inconclusive result is accepted as complete.
-
-### What data sources can it inspect?
-
-The agent can inspect code, Loki logs, a Postgres replica, a ClickHouse mirror, Datadog traces and operational data, Kubernetes manifests, its Git knowledge base, and selected public web pages.
-
-### How does the agent remember previous incidents?
-
-After each investigation, the harness commits a structured note to a Git repository. Future runs search those notes for leads, while engineer-written service guides remain authoritative.
-
-### Why use Slack as the interface?
-
-Support and customer success already report incidents there. Emoji reactions create a low-friction trigger, threads preserve follow-up context, and status reactions provide simple deduplication without another database.
-
-### How long does an AI root cause analysis take?
-
-Most first answers in this deployment arrive within two to ten minutes, although each run is allowed up to 15 minutes and 60 turns.
