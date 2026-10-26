@@ -143,6 +143,9 @@ export async function generateMetadata({
     ? { absolute: `${title} — Bolna Blog` }
     : title;
   const description = post.description ?? post.excerpt;
+  // Social cards have more room than a search result, so a post can show its
+  // full headline there while keeping the shorter seoTitle for the tab.
+  const socialTitle = post.socialTitle ?? title;
   return {
     title: pageTitle,
     description,
@@ -152,7 +155,7 @@ export async function generateMetadata({
       types: { "application/rss+xml": `${SITE_URL}/rss.xml` },
     },
     openGraph: {
-      title,
+      title: socialTitle,
       description,
       type: "article",
       url: `${SITE_URL}/${post.slug}`,
@@ -167,7 +170,7 @@ export async function generateMetadata({
       // No per-author handles are recorded, so posts are credited to the
       // Bolna account; an authorTwitter frontmatter field could override it.
       creator: TWITTER_HANDLE,
-      title,
+      title: socialTitle,
       description,
       images: [socialImage(post)],
     },

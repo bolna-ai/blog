@@ -26,6 +26,7 @@ export type PostMeta = {
   // Optional shorter <title> for search results when the headline is too
   // long to fit with the " — Bolna Blog" suffix (keep it under 58 chars).
   seoTitle?: string;
+  socialTitle?: string;
   slug: string;
   date: string;
   author: string;
@@ -67,6 +68,7 @@ export function getPostBySlug(slug: string): Post | null {
   return {
     title: data.title,
     seoTitle: data.seoTitle,
+    socialTitle: data.socialTitle,
     slug: data.slug ?? slug,
     date: data.date,
     author: data.author,
