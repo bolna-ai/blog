@@ -46,6 +46,17 @@ Both **IP-based authentication** and **username/password (SIP digest) authentica
 
 [Bolna’s SIP Trunks dashboard](https://platform.bolna.ai/sip-trunks)
 
+## Can I Use a SIP Trunk from an Indian Carrier?
+
+Yes. Bolna's docs have step-by-step guides for the Indian carriers teams ask about most:
+
+-   **Airtel Business:** connected as a Custom SIP trunk. Airtel does not publish its SIP settings, so your Airtel account team sets up their side with the values Bolna gives you. See the [Airtel guide](https://www.bolna.ai/docs/sip-trunking/airtel).
+-   **Vobiz:** an Indian telephony provider. You create an inbound and an outbound trunk in the Vobiz Console and connect both to one Vobiz SIP trunk in Bolna. See the [Vobiz guide](https://www.bolna.ai/docs/sip-trunking/vobiz).
+-   **Plivo Zentrunk:** for calls to or from Indian numbers, Plivo needs an account in its India data region. See the [Plivo guide](https://www.bolna.ai/docs/sip-trunking/plivo).
+-   **Acefone and VoiceLink:** both connect as Custom SIP trunks. See the [Acefone](https://www.bolna.ai/docs/sip-trunking/acefone) and [VoiceLink](https://www.bolna.ai/docs/sip-trunking/voicelink) guides.
+
+If your agents make commercial calls in India, the number you call from matters too. Promotional and telemarketing calls need **140-series** numbers, and transactional or service calls need **160-series** numbers, both registered on the DLT platform under TRAI guidelines. Bolna's guide to [140 and 160-series numbers](https://www.bolna.ai/docs/obtaining-regulated-phone-numbers) walks through the registration.
+
 ## What Does “Bring Your Own Telephony” Actually Mean?
 
 BYOT means the AI platform sits on top of your telephony infrastructure instead of replacing it. You keep your SIP provider relationship, your phone numbers, your carrier contracts, and your compliance setup. The [voice AI](https://www.bolna.ai/blog/recruiting-tools-in-2025) platform handles what it is actually good at: transcribing speech, generating intelligent responses, and speaking back in real time.
