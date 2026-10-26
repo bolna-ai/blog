@@ -1,0 +1,129 @@
+---
+title: "AI Voice Calling: How Voice Agents Handle Phone Calls"
+slug: "ai-voice-calling"
+date: "2026-10-26T00:00:00.000Z"
+author: "Tanisha Sharma"
+categories: ["General"]
+coverImage: "/images/posts/ai-voice-calling/cover.jpg"
+coverCaption: "Women's Army Corps operators working the Victory switchboard in Babelsberg during the Potsdam Conference, 15 July 1945. Every call went through a person and a patch cord."
+excerpt: "AI voice calling puts software on a phone line that listens, decides what to say and talks back in real time. This explainer covers how a call works end to end, inbound and outbound calling, costs, and what to check before your first live campaign."
+description: "AI voice calling explained: how speech-to-text, an LLM and text-to-speech run a phone call, inbound vs outbound, what it costs and what to check first."
+---
+
+AI voice calling is a phone call where software holds the conversation: it listens to the caller, works out what to say, and replies out loud in a natural voice. Under the hood that's three systems taking turns on a normal phone line, one that turns speech into text, a language model that writes the reply, and one that turns the reply back into speech.
+
+The software doing this is usually called a voice agent. It can answer calls coming in to a number, or dial out to a list of people, and it does the job a call centre script used to do, except it can follow a conversation that wanders off the script.
+
+This post is for someone who has heard the term and wants to know what actually happens on one of these calls, what teams use them for, what they cost, and what to sort out before an agent talks to real customers.
+
+## How an AI voice call works, end to end
+
+Take an outbound call, since it has the most moving parts. Your system asks for a call to be placed, and the platform hands that request to a telephony provider (the company, such as Twilio or Exotel, that connects software to the phone network). The provider dials the number. The phone rings like any other call.
+
+When the person picks up, the audio starts flowing both ways and a loop begins:
+
+1. The caller's audio streams into a transcriber, the speech-to-text step (also called ASR, automatic speech recognition), which turns it into text as they speak.
+2. That text goes to a large language model along with the agent's prompt, the written instructions that say who the agent is, what the call is for and how to behave. The model writes the next thing to say.
+3. A synthesizer, the text-to-speech step (TTS), turns that reply into audio, which plays down the line to the caller.
+
+Then the caller speaks again and the loop repeats until someone hangs up. On Bolna, the [platform docs](https://www.bolna.ai/docs/platform-concepts) put the whole loop at under 600ms.
+
+There's a second way to build this. A speech-to-speech model hears audio and produces audio directly, skipping the separate transcribe and synthesize steps. The three-part pipeline has one practical advantage: you can pick each piece separately, for example a transcriber that's good at Hindi and a voice that sounds right in Tamil.
+
+A few more things happen around that loop.
+
+- During the call, the agent can hit an API to check an order, look up open calendar slots and book one, or [transfer the call to a person](https://www.bolna.ai/docs/tool-calling/transfer-calls) when it shouldn't handle something itself.
+- When the caller cuts in, the agent has to stop talking, and when the line goes quiet it has to decide whether to prompt or hang up. Both are settings you tune, and they're usually where a first agent feels off.
+- After the call, you get a transcript and a recording, plus extracted fields such as the call outcome or a callback time. Those can go straight to your CRM over a webhook.
+
+If you want the full lifecycle with every call status, Bolna's docs have a page on [how a call flows through the platform](https://www.bolna.ai/docs/concepts/call-flow).
+
+## Inbound vs outbound AI calling
+
+The pipeline is the same in both directions. What changes is who starts the call and what the agent knows when it begins.
+
+Outbound means the agent dials. You can [place a single call](https://www.bolna.ai/docs/outbound/making-calls) from the dashboard or the API, or upload a CSV of contacts and run a [batch](https://www.bolna.ai/docs/outbound/batch-calling) for hundreds or thousands of calls. Each row can carry its own details, like a name or a due date, which the agent uses in the conversation. Outbound is also where retries and calling-hour rules start to matter.
+
+Inbound means the agent answers. You [link a phone number to an agent](https://www.bolna.ai/docs/inbound/receiving-calls), and anyone who calls that number gets the agent. Inbound agents can identify the caller from your own data before saying hello, sit behind an IVR menu, and pass the call to a human when needed.
+
+For phone numbers, outbound calls can use Bolna's default numbers or numbers you buy on Bolna. You can also connect your own account with a supported telephony provider like Twilio or Exotel, or bring a SIP trunk. Inbound needs a number assigned to the agent.
+
+## What teams use AI voice calling for
+
+The common thread is a call with a known goal that still has to cope with whatever the person says. The agent templates on Bolna cover jobs like these:
+
+- Lead qualification: calling people who filled in a form, asking a few questions and passing the warm ones to sales.
+- Support lines that answer at any hour and handle the repetitive questions, with a transfer for the rest.
+- Appointment booking and reminders, where the agent checks a calendar and confirms a slot.
+- First-round recruitment screening, where every candidate gets the same questions and the answers come back structured.
+- Confirming cash-on-delivery orders before dispatch.
+- Post-visit or post-purchase surveys.
+
+More than 1,000 companies use Bolna for calls like these.
+
+Language is the part people underestimate. A support line in India gets callers who start in English and switch to Hindi halfway through a sentence. Bolna supports 10+ Indian languages plus English. That covers Hindi and Hinglish as well as Tamil and Telugu, and an agent can [switch languages mid-call](https://www.bolna.ai/docs/customizations/multilingual-languages-support) when the caller does.
+
+## What AI voice calling costs
+
+Most platforms charge per minute of call time, and the per-minute price usually bundles some or all of the three models plus telephony.
+
+On Bolna, pay-as-you-go starts at $0.06 per minute (about ₹5.52), which includes the speech-to-text and text-to-speech models as well as the LLM when the agent uses the bundled models. Telephony and the platform fee are added per minute on top. Larger top-ups bring the rate down, and if you already pay for your own model providers, you can bring those API keys instead. New accounts get $5 in free credits, which is enough to build an agent and run your first test calls. The full breakdown is on the [pricing page](https://www.bolna.ai/pricing).
+
+Measure cost per call on real traffic before you budget for a big campaign. Average call length decides most of the bill, and you only find out what it is by making calls.
+
+## What to check before going live
+
+An agent that reads well as a prompt can still talk over people or mishear a phone number. Bolna's docs lay out a [test plan in four stages](https://www.bolna.ai/docs/production/test-before-calling-customers), and it's worth following in order:
+
+1. Test in the browser. It's the fastest way to fix wording, and it costs nothing per attempt, but it tells you nothing about phone audio.
+2. Call yourself on a real phone, on the same telephony provider you'll use in production. Carrier audio and background noise only show up here, and so does keypad input.
+3. Run a list of awkward cases: the caller interrupts, goes silent, reads out a 12-digit number, switches language, asks for a human, or a voicemail picks up.
+4. Dry-run a small batch of 20 to 50 calls to internal numbers or people who agreed to test. Single calls never exercise retries or concurrency.
+
+After each test call, read the transcript (did the transcriber hear correctly?), listen to the recording, and check that the extracted fields came out right.
+
+Then there are calling hours. Nobody wants a sales call at 11pm. Bolna's [calling guardrails](https://www.bolna.ai/docs/outbound/calling-guardrails) let you set an allowed window, say 9am to 9pm. The window is checked against the recipient's local time, worked out from their phone number, and any call triggered outside it gets rescheduled to the next allowed start time.
+
+If you're calling in India, compliance comes next. For commercial or telemarketing calls there, businesses have to use regulated phone numbers issued under TRAI guidelines, and those numbers need registration on the DLT (Distributed Ledger Technology) platform first. The 140-series is for telemarketing and promotional calls. The 160-series is for transactional and service calls, such as banking and insurance. Bolna's guide to [obtaining 140 and 160-series numbers](https://www.bolna.ai/docs/obtaining-regulated-phone-numbers) walks through the registration and documents. Start on it early. The process involves KYC documents and approvals, while the agent itself takes minutes to build. Check the specifics for your business with whoever handles compliance for you, since this post isn't legal advice.
+
+Bolna also keeps a [production readiness checklist](https://www.bolna.ai/docs/production/readiness-checklist) that covers the rest, including do-not-call handling and webhooks.
+
+## How to start AI voice calling on Bolna
+
+The quickest route is to try one before building anything. The [Bolna platform](https://platform.bolna.ai/) lets you talk to a live agent without signing up.
+
+To build your own, open Agent Studio and use [Auto Build](https://www.bolna.ai/docs/agent-setup/studio). You describe the use case in a short form (who the agent is, what the call is for, how it should open and close) and get a call-ready agent in 5 to 8 minutes. From there:
+
+1. Make a test call to your own phone and read the transcript.
+2. Adjust the prompt and the voice until the awkward cases pass.
+3. Pick a number: Bolna's default, one you buy, or your own provider.
+4. Turn on calling guardrails, and for India, sort out your 140 or 160-series number.
+5. Run a small batch, review every call the same day, then scale up.
+
+If you'd rather start from something that already works, the [voice agents](https://www.bolna.ai/agents) page has ready-made templates by industry that you can import and adapt.
+
+## FAQ
+
+### What is AI voice calling?
+
+It's a phone call where software holds the conversation. A transcriber turns the caller's speech into text, a large language model decides the reply, and a text-to-speech voice says it back, all fast enough to feel like a normal conversation.
+
+### How much does AI voice calling cost?
+
+It's usually priced per minute. On Bolna, pay-as-you-go starts at $0.06 per minute with the bundled speech and language models included. Telephony and the platform fee are added per minute. New accounts get $5 in free credits. See [pricing](https://www.bolna.ai/pricing) for the current rates.
+
+### Is AI voice calling legal in India?
+
+Businesses do run AI calling in India. Commercial and telemarketing calls have to go out on regulated numbers issued under TRAI guidelines: 140-series for promotional calls and 160-series for transactional and service calls, both of which need DLT registration. Set calling hours too, and confirm the details for your business with your compliance team.
+
+### Can an AI calling agent transfer a call to a human?
+
+Yes. A transfer is one of the tools an agent can use mid-call, so when a caller asks for a person or the question is outside what the agent should handle, it can hand the call to a number you choose.
+
+### What's the difference between AI voice calling and an IVR?
+
+An IVR plays a fixed menu and waits for keypresses or a few recognised words. An AI voice agent understands free speech, answers follow-up questions and can change course in the middle of the call. The two can work together: on Bolna, an inbound IVR menu can route callers to an agent.
+
+### Can I use my existing phone numbers?
+
+Yes. Bolna connects to your own Twilio or Plivo account. Exotel and Vobiz are supported too, as is your own SIP trunk. You can also buy numbers on Bolna or use its default numbers for outbound calls.
