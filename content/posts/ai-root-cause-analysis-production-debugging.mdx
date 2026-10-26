@@ -1,5 +1,5 @@
 ---
-title: "How We Built a Read-Only AI Agent for Production Debugging"
+title: "How We Built a Read-Only AI Agent for Root Cause Analysis in Production"
 seoTitle: "Building an AI Root Cause Analysis Agent for Production"
 slug: "ai-root-cause-analysis-production-debugging"
 date: "2026-10-26T00:00:00.000Z"
@@ -15,7 +15,7 @@ description: "How Bolna built a read-only AI debugging agent using Claude, Slack
 
 One afternoon in late July, a support ticket landed in our bugs channel. An e-commerce customer's inbound calls were being rejected. Someone reacted to the message with an emoji. Two minutes later, a root cause analysis appeared in the Slack thread.
 
-Before an inbound call connects, Bolna can call the customer's API to identify who is calling. The lookup has a three-second limit. This customer's API answered in 3.001 seconds. The lookup returned empty, the caller appeared unknown, and the agent was configured to reject unknown numbers. Our product lead confirmed the finding a few messages later.
+Before an inbound call connects, Bolna can call the customer's API to [identify who is calling](https://www.bolna.ai/docs/customizations/identify-incoming-callers). The lookup has a three-second limit. This customer's API answered in 3.001 seconds. The lookup returned empty, the caller appeared unknown, and the agent was configured to [reject unknown numbers](https://www.bolna.ai/docs/customizations/block-incoming-callers). Our product lead confirmed the finding a few messages later.
 
 The analysis came from RootCauseClaude, the production debugging agent we run in Slack. Since the end of June, it has handled about 200 investigations for roughly 15 people, primarily in support and customer success. Most first answers arrive within two to ten minutes. The agent can read our code, production logs, database replica, analytics store, and traces. It cannot write to any of them.
 
@@ -28,6 +28,10 @@ The important design choice is not the model alone. Reliability comes from the s
 ## How the system works
 
 A Slack reaction starts a job. A worker refreshes the repositories, loads the investigation prompt and prior knowledge, then gives Claude access to read-only tools. The model inspects evidence and produces two outputs: a Slack response and a reusable knowledge note. Only the Python harness performs writes, such as saving a transcript or committing that note.
+
+![Architecture of the RCA agent: a Slack emoji or mention creates a job in a FIFO queue with one worker. The worker reads the Git knowledge base of guides and notes on every run and hands the prompt and memory to the Claude loop, which runs Opus for up to 60 turns, making tool calls to read-only tools over code, logs, databases and traces and getting evidence back. The loop returns the RCA and a note to the Python harness, the only component that writes: it posts the reply to the Slack thread and commits the note back to the knowledge base](/images/posts/ai-root-cause-analysis-production-debugging/architecture.png)
+
+_The model only reads. The Python harness does every write, posting the reply to Slack and committing the note back to Git._
 
 | Stage | Component | Responsibility |
 | --- | --- | --- |
@@ -45,7 +49,7 @@ When an event arrives, the bot checks for its own reactions on the message. It a
 
 Jobs enter a FIFO queue drained by a small worker pool. We currently run one worker. Each investigation is a long sequence of model calls and shell commands, and serial execution keeps a 1 GB instance comfortable. The worker code already supports higher concurrency when the box grows.
 
-Before each run, the worker fetches and resets every repository it reads to the upstream tip. That includes our open source voice engine, service repositories, a daily dump of Kubernetes manifests, the knowledge base, and the bot's own repository. The bot therefore reads the latest master branch and the latest system prompt. Updating its investigative behavior is a Markdown edit and a push; code changes still require a restart.
+Before each run, the worker fetches and resets every repository it reads to the upstream tip. That includes our [open source voice engine](https://github.com/bolna-ai/bolna), service repositories, a daily dump of Kubernetes manifests, the knowledge base, and the bot's own repository. The bot therefore reads the latest master branch and the latest system prompt. Updating its investigative behavior is a Markdown edit and a push; code changes still require a restart.
 
 ## The agent loop
 
@@ -86,7 +90,7 @@ The rest of the prompt captures knowledge an experienced engineer has and a new 
 
 **What an empty result means.** Loki estimates query cost from index statistics before execution and rejects scans above 400 GB. A week of voice-pipeline logs is about 628 GiB, so a wide query can be refused before it searches anything. Adding a line filter does not reduce the estimate because the stream selector determines the scan. The runbook tells the bot to narrow the time window, inspect query status before trusting a count, and never translate a refused query into "no logs found."
 
-**Where the data is.** Point lookups use a Postgres read replica. Date-range questions such as "how often" or "since when" use a ClickHouse mirror fed by change data capture because those scans can time out on Postgres.
+**Where the data is.** Point lookups use a Postgres read replica. Date-range questions such as "how often" or "since when" use a [ClickHouse mirror](https://www.bolna.ai/blog/bigquery-to-clickhouse-15m-call-minutes) fed by change data capture because those scans can time out on Postgres.
 
 **How deployment state is verified.** The agent reads a daily Kubernetes manifest dump for resource limits, replica counts, and image tags. Image tags are Git SHAs, and each Datadog span carries the commit it ran. If the two disagree, the span wins because a deployment may have landed after the daily dump.
 
@@ -153,7 +157,7 @@ Someone replied "retry" and asked the bot to investigate its own failure. It rec
 
 ### A warning that was a decoy
 
-We spent time investigating "No recording URL found" warnings on a group of calls. In nine minutes, the agent showed that the calls had never been dialed. The real error occurred earlier: the batch-scheduling endpoint returned a 500 whenever a timestamp ended in `Z`, the ISO 8601 UTC suffix, and a catch-all exception handler swallowed the failure. An engineer confirmed the diagnosis in the exact function.
+We spent time investigating "No recording URL found" warnings on a group of calls. In nine minutes, the agent showed that the calls had never been dialed. The real error occurred earlier: the [batch-scheduling endpoint](https://www.bolna.ai/docs/api-reference/batches/schedule) returned a 500 whenever a timestamp ended in `Z`, the ISO 8601 UTC suffix, and a catch-all exception handler swallowed the failure. An engineer confirmed the diagnosis in the exact function.
 
 ### A failure that looked like speech recognition
 
