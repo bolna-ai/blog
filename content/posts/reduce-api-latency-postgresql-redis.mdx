@@ -1,0 +1,159 @@
+---
+title: "How We Cut API Latency by More Than Half with PostgreSQL and Redis"
+seoTitle: "How We Cut API Latency by More Than Half"
+socialTitle: "How We Cut API Latency by More Than Half with PostgreSQL and Redis"
+slug: "reduce-api-latency-postgresql-redis"
+date: "2026-10-28T00:00:00.000Z"
+author: "Razi Ahmad"
+authorGithub: "https://github.com/Razihmad"
+authorAvatar: "https://github.com/Razihmad.png"
+categories: ["Engineering"]
+coverImage: "/images/posts/reduce-api-latency-postgresql-redis/cover.jpg"
+coverCaption: "Overseas positions at the long-distance exchange in Paris, 1938. Every call passed through a row of checks before it connected; the trick was never making it ask the same question twice."
+excerpt: "Our /call API took 700-800 ms at p95. Removing redundant PostgreSQL queries, caching slow-changing data in Redis, running independent reads concurrently and dropping needless transactions brought it to 300-400 ms, with no new infrastructure."
+description: "How we cut /call API p95 latency from 700-800 ms to 300-400 ms with PostgreSQL query cleanup, Redis caching and Python asyncio, without adding infrastructure."
+---
+
+Our `/call` API was taking 700-800 ms at p95, and the first thing we found while investigating wasn't a slow PostgreSQL query. It was how many times we were querying Postgres for information we'd already fetched.
+
+After removing redundant queries, adding Redis caching for slow-changing data, parallelizing independent operations with Python's `asyncio`, and cleaning up unnecessary transactions, we brought p95 latency down to 300-400 ms. That's a 50-55% improvement without adding infrastructure or rewriting the service.
+
+This is a breakdown of what was happening inside the request path, the changes we made, and why a handful of relatively small fixes made such a big difference.
+
+## Understanding the /call request path
+
+[`/call`](https://www.bolna.ai/docs/api-reference/calls/make) is the endpoint that starts an outbound voice AI call on Bolna. Whether a customer is running a large campaign, triggering calls from their CRM, or building a "call me now" button, the request goes through this endpoint. Before a call can be queued, we have to validate the recipient's phone number and request payload, load the user and agent, verify ownership and wallet balance, resolve the caller ID, check DND restrictions, fetch provider credentials, and create an execution record. Only after all of that do we push the call to the dispatch queue.
+
+![The /call request flow in ten steps: POST /call, validate the phone number and payload, load the user and agent, check ownership and wallet, resolve the caller ID and provider, check Truecaller and DND, fetch credentials and voices, create the execution record, push to the dispatch queue, and return the response](/images/posts/reduce-api-latency-postgresql-redis/call-request-flow.png)
+
+_The checks performed before an outbound call is queued._
+
+None of these checks was unnecessary. The problem was how much database work we were doing to complete them. When we traced the request path, three things stood out. Several functions were independently fetching information that other functions had already retrieved. We were querying Postgres for data that rarely changed. And some simple reads were carrying extra overhead from transactions and unnecessarily large query results. Individually, none of these looked particularly expensive. Together, they added up.
+
+## Eliminating redundant PostgreSQL queries
+
+Bolna supports [organizations with multiple users](https://www.bolna.ai/docs/enterprise/organization). When resolving a phone number or checking provider credentials, we often need to know which users belong to the organization making the request. Our Twilio, Plivo, and VoBiz number lookups all needed this information. So did verified-number checks, caller-ID ownership checks, and credential lookups.
+
+Previously, each helper could independently query Postgres to get the same list of organization user IDs. The database wasn't struggling to answer the question. We were just asking it repeatedly.
+
+We changed the handler to resolve organization membership once, immediately after loading the user, and pass the result to downstream functions. The new flow looks roughly like this:
+
+```python
+org_user_ids = await get_org_user_ids(user_id)
+
+verified_numbers = await get_verified_numbers(
+    user_id,
+    org_user_ids=org_user_ids
+)
+
+credentials = await get_provider_credentials(
+    user_id,
+    org_user_ids=org_user_ids
+)
+```
+
+_Simplified pseudocode._
+
+There was one detail we wanted to get right. These helpers are used outside `/call` too, so making `org_user_ids` mandatory would have meant updating unrelated callers. Instead, we made it optional. When the IDs are provided, the helper uses them. Otherwise, it falls back to fetching them itself. That let us optimize the request path without turning it into a much larger refactor.
+
+We made a similar change in dispatch. The handler already knew the organization ID, but the dispatch code was looking it up again to construct the queue key. Now we pass it directly.
+
+![Before: four helpers, number lookup, verified numbers, caller-ID check and credentials, each query Postgres for organization users, four lookups in total. After: the /call handler fetches organization users from Postgres once and passes org_user_ids to all four helpers](/images/posts/reduce-api-latency-postgresql-redis/org-lookups-before-after.png)
+
+_Multiple lookups for the same organization membership were replaced with a single lookup shared across the request._
+
+## Caching slow-changing data in Redis
+
+The next thing we looked at was how often the information we were fetching actually changed. Some data on the call path needs to be checked against current state. Wallet balances, for example, require careful handling. Other information changes much less frequently.
+
+An organization's membership list, a verified phone number, or the [Truecaller status](https://www.bolna.ai/docs/truecaller-verification) of a caller ID might remain the same across thousands of calls. But we were still fetching that information from Postgres on every request. We added Redis caching with a one-hour TTL for a few specific lookups: Truecaller verification ID and status, verified recipient phone numbers, organization user IDs, Bolna-owned phone numbers, and provider-specific phone numbers.
+
+The read path is straightforward. Check Redis first, fall back to Postgres on a miss, and populate the cache for subsequent requests. The part that needed more attention was invalidation.
+
+Suppose someone removes a verified phone number. If Redis continues returning the old entry, the system could incorrectly treat that number as verified. So we added invalidation to the write paths that modify this data. Verifying or deleting numbers, adding or removing provider credentials, purchasing or transferring numbers, and changing organization membership all clear the relevant cache entries.
+
+The one-hour TTL is a fallback in case an invalidation path is missed, not something we rely on for immediate freshness. We didn't want to trade a few hundred milliseconds of latency for stale ownership or verification information.
+
+## Running independent reads concurrently with asyncio
+
+Once we'd reduced the redundant lookups, we looked at how the remaining operations were scheduled. Several independent reads were running sequentially. For example, fetching the user and fetching the agent don't depend on each other. We need both results, but there's no reason to wait for one before starting the other.
+
+Previously:
+
+```python
+user = await fetch_user(user_id)
+agent = await fetch_agent(agent_id)
+```
+
+Now:
+
+```python
+user, agent = await asyncio.gather(
+    fetch_user(user_id),
+    fetch_agent(agent_id)
+)
+```
+
+_Simplified pseudocode._
+
+We applied the same approach to the DND check and agent-version lookup, as well as the credential lookup, verified-number check, and voice catalog. For agents that use resume or job-link context, the two enrichment operations now run concurrently too.
+
+This doesn't make the individual queries faster. It reduces the time spent waiting for independent I/O operations to finish one after another. Of course, we couldn't parallelize everything. Some checks depend on earlier results, and certain operations need to preserve their ordering. We only grouped work that could safely run independently.
+
+We also cleaned up a query inside `fetch_agent` that was retrieving entire rows when we only needed `disposition_id`. A small change, but another unnecessary bit of database work removed from the request path.
+
+## We didn't need transactions around every SELECT
+
+While going through the database helpers, we found another pattern. Some functions were wrapping a single read in an explicit transaction, something like this:
+
+```sql
+BEGIN;
+
+SELECT *
+FROM users
+WHERE id = $1;
+
+COMMIT;
+```
+
+For a standalone `SELECT`, the explicit transaction wasn't adding useful atomicity. The statement was already atomic on its own. It did, however, introduce additional database commands and round-trip overhead.
+
+We removed those wrappers from read-only helpers on the `/call` path, including `fetch_record`, `get_user`, and phone-number lookups. We kept transactions where they actually mattered. Wallet updates and other state-changing operations still need the appropriate transactional guarantees. The goal wasn't to get rid of transactions. It was to stop paying for them around reads that didn't need them.
+
+## Reusing the same records when the call connects
+
+One more change came out of the investigation, although it doesn't directly contribute to the `/call` latency numbers. By the time `/call` queues an execution, it has already loaded the user and agent records. When the call connects, our `ws-server` needs those records too. Previously, it could end up fetching them from Postgres again.
+
+We now populate the cache consumed by `ws-server` with the records already available during call initiation. So when the WebSocket server needs that information, it can reuse what `/call` already fetched. It's one less set of database reads in the next stage of the call lifecycle.
+
+## Results: p95 latency down by more than half
+
+After these changes, the p95 response time of `/call` dropped from approximately 700-800 ms to 300-400 ms. That's a 50-55% reduction, without additional hardware or a major rewrite.
+
+Importantly, we didn't remove any of the validations required to initiate a call. Ownership, wallet, DND, provider, and verification checks still run. We changed how the information needed for those checks is retrieved and processed.
+
+We focused on p95 because slower requests matter when customers initiate calls at scale. During a large outbound campaign, hundreds or thousands of requests can arrive within a relatively short window. Every unnecessary database round trip adds work during that burst. Removing those reads also reduces pressure on Postgres connections, although we haven't separately quantified the throughput improvement.
+
+One thing worth clarifying is that we didn't measure each optimization as an independent experiment. The reported improvement is the combined result of these changes. We can't attribute a specific percentage to caching, parallelization, or transaction removal without additional measurements.
+
+## What we'd do differently next time
+
+Looking back, we probably could have found some of these issues earlier by paying more attention to the number of database operations per request, rather than looking primarily at individual query performance. A query taking a few milliseconds doesn't immediately look like a problem. But if five different functions execute that query during the same request, its cost becomes harder to ignore.
+
+The organization membership change was a good example. We didn't need a new abstraction or a complicated caching strategy to fix it. We already had the information; we just needed to pass it along. Caching required more care. Adding Redis was straightforward, but identifying every write path that needed to invalidate an entry took more thought. For information related to phone-number ownership and verification, that work was just as important as the cache itself.
+
+The concurrency changes were similar. We weren't doing less validation, just avoiding unnecessary waiting between operations that didn't depend on each other. And some improvements were almost embarrassingly small. Removing a transaction wrapper from a plain read or fetching one column instead of a full row isn't usually the kind of change that gets much attention, but when those operations sit on a frequently executed endpoint, the overhead adds up.
+
+We're continuing to look at other frequently used endpoints in the same way: trace the full request, count the database operations, and look for work that can be reused, combined, or avoided. For `/call`, that was enough to bring p95 down by more than half.
+
+We didn't need a faster database. We needed to ask it fewer questions.
+
+## Further reading
+
+-   [Make voice AI call API](https://www.bolna.ai/docs/api-reference/calls/make), the `/call` endpoint this post is about
+-   [Calling APIs overview](https://www.bolna.ai/docs/api-reference/calls/overview)
+-   [Batch APIs overview](https://www.bolna.ai/docs/api-reference/batches/overview), for the large outbound campaigns that send `/call` its bursts
+-   [Truecaller verification for phone numbers](https://www.bolna.ai/docs/truecaller-verification)
+-   [Managing your organization and team](https://www.bolna.ai/docs/enterprise/organization)
+-   [Cutting TCP connections in a voice AI fleet](https://www.bolna.ai/blog/reduced-tcp-connections-voice-ai-fleet), another round of doing less work per request
+-   [How we built a read-only AI agent for root cause analysis in production](https://www.bolna.ai/blog/ai-root-cause-analysis-production-debugging)
