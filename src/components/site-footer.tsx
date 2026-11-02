@@ -31,16 +31,15 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-background pt-8">
-      <div className="mx-auto max-w-7xl px-6 py-8">
-        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
-          <div className="flex items-start text-foreground">
-            <BolnaLogo className="h-10 w-auto" />
-            <span className="sr-only">Bolna</span>
+    <footer className="border-t border-surface-dark-hover bg-surface-dark text-white">
+      <div className="mx-auto max-w-[1440px] px-5 py-16 lg:px-10">
+        <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-4">
+          <div className="col-span-2 flex items-start md:col-span-1">
+            <BolnaLogo height={26} onDark />
           </div>
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="type-caption mb-4 text-text-subtle">
                 {col.title}
               </h3>
               <ul className="space-y-2">
@@ -49,7 +48,7 @@ export function SiteFooter() {
                   return (
                     <li key={link.label}>
                       <a
-                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                        className="type-sm text-white transition-colors hover:text-text-subtle"
                         href={link.href}
                         target={external ? "_blank" : undefined}
                         rel={external ? "noopener noreferrer" : undefined}
@@ -63,13 +62,13 @@ export function SiteFooter() {
             </div>
           ))}
         </div>
-        <div className="flex flex-col items-center justify-between border-t border-border pt-6 md:flex-row">
-          <p className="text-xs text-muted-foreground">
+        <div className="flex flex-col items-center justify-between border-t border-surface-dark-hover pt-6 md:flex-row">
+          <p className="type-xs text-text-subtle">
             © {new Date().getFullYear()} Bolna
           </p>
           <a
             href={RSS_PATH}
-            className="mt-3 text-xs text-muted-foreground transition-colors hover:text-foreground md:mt-0"
+            className="type-xs mt-3 text-text-subtle transition-colors hover:text-white md:mt-0"
           >
             RSS Feed
           </a>

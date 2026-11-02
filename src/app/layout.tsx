@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Anek_Latin, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -7,14 +7,16 @@ import { SITE_URL, TWITTER_HANDLE } from "@/lib/links";
 import { OG_DEFAULT_SIZE } from "@/lib/posts";
 import "./globals.css";
 
-const sans = Inter({
-  variable: "--font-sans-family",
+const sans = Anek_Latin({
+  variable: "--font-anek-latin",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
-const heading = Space_Grotesk({
-  variable: "--font-heading-family",
+const mono = Space_Mono({
+  variable: "--font-space-mono",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 const OG_IMAGE = {
@@ -68,13 +70,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sans.variable} ${heading.variable}`}
+      className={`${sans.variable} ${mono.variable}`}
     >
-      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <body className="flex min-h-screen flex-col font-sans text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex min-h-screen flex-col">
             <SiteNav />
-            <main className="mx-auto w-full max-w-7xl flex-1 px-6">
+            <main className="mx-auto w-full max-w-[1440px] flex-1 px-(--section-px)">
               {children}
             </main>
             <SiteFooter />

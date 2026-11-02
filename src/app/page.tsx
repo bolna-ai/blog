@@ -9,10 +9,10 @@ export default function Home() {
 
   return (
     <div>
-      <section className="relative pb-16 pt-8">
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <div className="my-6 flex items-center justify-center gap-3">
-            <h1 className="font-heading text-5xl font-semibold tracking-tight lg:text-6xl">
+      <section className="relative px-0 pb-12 pt-(--section-py)">
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <div className="mb-6 flex items-center justify-center gap-4">
+            <h1 className="type-h1 font-heading">
               Blog
             </h1>
             <a
@@ -20,11 +20,11 @@ export default function Home() {
               title="RSS Feed"
               href={RSS_PATH}
             >
-              <Rss className="h-8 w-8" />
+              <Rss className="h-7 w-7" />
               <span className="sr-only">RSS Feed</span>
             </a>
           </div>
-          <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
+          <p className="type-lg mx-auto mb-10 max-w-xl text-muted-foreground">
             Engineering notes and product updates from the team building Bolna&rsquo;s voice AI infrastructure.
           </p>
           <CategoryPills />
