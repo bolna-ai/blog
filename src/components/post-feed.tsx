@@ -68,7 +68,7 @@ export function PostFeed({ posts }: { posts: Post[] }) {
               </span>
             </div>
             <Link
-              href={`/${post.slug}`}
+              href={`/${encodeURIComponent(post.slug)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="absolute inset-0"
