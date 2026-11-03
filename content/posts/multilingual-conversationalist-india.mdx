@@ -37,6 +37,8 @@ In 2011, the Census asked every resident for their mother tongue. It got back 19
 
 Even these numbers simplify things. "Hindi" in the Census covers more than fifty mother tongues, including Bhojpuri, which alone has about 5 crore speakers. States are also less uniform than a map suggests. A third of Karnataka grew up speaking something other than Kannada. Assam is about half Assamese and nearly a third Bengali.
 
+![Map of India showing each state's largest mother tongue in the 2011 Census, shaded by how much of the state speaks it: Hindi across the north at 78 to 94%, Marathi 69% in Maharashtra, Kannada 66% in Karnataka, Assamese 48% in Assam, Bengali 86% in West Bengal, Malayalam 97% in Kerala and Tamil 88% in Tamil Nadu](/images/posts/multilingual-conversationalist-india/largest-mother-tongue-by-state.png)
+
 More than a quarter of Indians also speak a second language, and people pick a language based on who they are talking to. When a call comes from an unknown number, most people guess Hindi or English. That is why the same pattern keeps showing up on calls:
 
 -   Callers open in the language they think you expect, then move to their own.
@@ -53,6 +55,8 @@ Good AI voices already exist for many Indian languages. The hard part is decidin
 
 **One model for every language.** Speech recognition quality varies a lot from one language to the next. In AI4Bharat's Vistaar benchmark, models built for Indian languages got about 1 in 7 Hindi words wrong, but nearly 1 in 3 Malayalam words. Noisy phone lines make it worse.
 
+![Bar chart of IndicWhisper's average word error rate across the Vistaar benchmarks: Hindi 13.6%, Marathi 18.2%, Kannada 18.3%, Urdu 19.4%, Bengali 20.1%, Punjabi 20.5%, Gujarati 22.8%, Tamil 25.3%, Odia 27.4%, Telugu 28.8% and Malayalam 32.3%](/images/posts/multilingual-conversationalist-india/vistaar-word-error-rate.png)
+
 So on Bolna, each language on an agent gets its own speech recognition and voice model, for example Sarvam for Hindi and Deepgram for English. When a better Tamil model comes out, it goes into the Tamil slot and the rest of the agent stays the same.
 
 **Tip:** when comparing vendors, ask for one recorded call that switches language twice.
@@ -60,6 +64,8 @@ So on Bolna, each language on an agent gets its own speech recognition and voice
 ## How LiD works on Bolna
 
 Language identification (LiD) on Bolna has two parts.
+
+![Diagram of how a Bolna agent decides which language to speak: the caller's speech goes to the Detector, a main recognizer locked to the current language and a background detector that assumes no language, then to the Switch, which ignores fillers, borrowed words and numbers. If the caller has moved to another configured language, the transcriber, voice and prompt all move to it; if not, the agent stays put](/images/posts/multilingual-conversationalist-india/how-lid-decides.png)
 
 **The Detector.** Two listeners run during the call. One is set to the language the agent is currently speaking. The other writes down whatever it hears, without assuming any language.
 
@@ -90,21 +96,23 @@ Language identification helps on any call where the useful part is personal:
 
 ## The numbers
 
+![Multilingual agents on Bolna by the numbers: 7,966 multilingual agents, 9.4% of all agents; more than 220,000 calls handled in 30 days; 17,050 calls switched language mid-call, about 1 in 8 where live detection ran; 16 languages switched into, including Hindi, Tamil, Marathi, Bengali, Arabic and Spanish; and 20+ languages configured](/images/posts/multilingual-conversationalist-india/multilingual-by-the-numbers.png)
+
 As of 27 September 2026, Bolna had 7,966 multilingual agents, 9.4% of all agents on the platform. In the 30 days before that, they handled more than 220,000 calls, and 17,050 of those switched languages mid-call. That is about one in eight of the calls where live detection ran.
 
 ## The choice of caller
 
 Nobody on the opening call asked for Marathi. The borrower simply switched, the way people across India do many times a day. A good agent notices that early and follows on the very next turn, so the customer never has to ask.
 
-Try it yourself. Call Mr. Bolna on [+91 22 6998 0337](tel:+912269980337), start in any language and switch partway through a sentence. Then set up your first multilingual agent with the [multilingual agent quickstart](https://www.bolna.ai/docs/quickstarts/multilingual?utm_source=blog&utm_medium=organic&utm_campaign=language-identification).
+**Try it yourself.** Call Mr. Bolna on [**+91 22 6998 0337**](tel:+912269980337), start in any language and switch partway through a sentence. Then set up your first multilingual agent with the [multilingual agent quickstart](https://www.bolna.ai/docs/quickstarts/multilingual).
 
 ## Sources
 
--   [Census of India 2011, Paper 1 of 2018: Language](https://censusindia.gov.in/nada/index.php/catalog/42458)
--   [Language Atlas of India 2011](https://censusindia.gov.in/nada/index.php/catalog/42561)
--   [AI4Bharat, Vistaar benchmark (2023)](https://arxiv.org/abs/2305.15386)
--   [Stivers et al. (2009), Universals and cultural variation in turn-taking in conversation, PNAS](https://doi.org/10.1073/pnas.0903616106)
--   [Levinson and Torreira (2015), Timing in turn-taking, Frontiers in Psychology](https://doi.org/10.3389/fpsyg.2015.00731)
+-   [Census of India 2011, Paper 1 of 2018: Language](https://new.census.gov.in/nada/index.php/catalog/42458/download/46089/C-16_25062018.pdf)
+-   [Language Atlas of India 2011](https://ruralindiaonline.org/library/resource/language-atlas-of-india-2011)
+-   [AI4Bharat, Vistaar benchmark (2023)](https://github.com/AI4Bharat/vistaar)
+-   [Stivers et al. (2009), Universals and cultural variation in turn-taking in conversation, PNAS](https://www.pnas.org/doi/10.1073/pnas.0903616106)
+-   [Levinson and Torreira (2015), Timing in turn-taking, Frontiers in Psychology](https://pmc.ncbi.nlm.nih.gov/articles/PMC4464110)
 -   [Bolna docs: How language switching works](https://www.bolna.ai/docs/customizations/language-switching-behavior)
 -   [Bolna docs: Set up multilingual voice AI agents](https://www.bolna.ai/docs/customizations/multilingual-languages-support)
 -   [Bolna docs: Choosing a speech-to-text provider](https://www.bolna.ai/docs/concepts/choosing-speech-to-text)
