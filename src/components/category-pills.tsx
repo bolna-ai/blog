@@ -5,13 +5,13 @@ export function CategoryPills({ activeSlug }: { activeSlug?: string }) {
   const categories = getAllCategories();
 
   return (
-    <div className="mx-auto flex max-w-xl flex-wrap justify-center gap-3">
+    <div className="mx-auto flex max-w-3xl flex-wrap justify-center gap-3">
       <Link
         href="/"
-        className={`inline-flex items-center rounded-md border px-2 py-1 text-sm font-medium transition-all duration-200 ${
+        className={`inline-flex items-center rounded-pill border px-4 py-1.5 text-base font-medium transition-colors duration-200 ${
           !activeSlug
-            ? "border-foreground bg-background text-foreground"
-            : "border-border bg-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+            ? "border-foreground bg-foreground text-background"
+            : "border-border bg-transparent text-foreground hover:bg-muted"
         }`}
       >
         All Posts
@@ -23,10 +23,10 @@ export function CategoryPills({ activeSlug }: { activeSlug?: string }) {
           <Link
             key={cat}
             href={`/category/${slug}`}
-            className={`inline-flex items-center rounded-md border px-2 py-1 text-sm font-medium transition-all duration-200 ${
+            className={`inline-flex items-center rounded-pill border px-4 py-1.5 text-base font-medium transition-colors duration-200 ${
               active
-                ? "border-foreground bg-background text-foreground"
-                : "border-border bg-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                ? "border-foreground bg-foreground text-background"
+                : "border-border bg-transparent text-foreground hover:bg-muted"
             }`}
           >
             {cat}

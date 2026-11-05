@@ -46,8 +46,8 @@ export function TableOfContents({ items }: { items: TocItem[] }) {
   return (
     <aside className="absolute -left-96 hidden w-64 min-[1400px]:block">
       <div className="fixed left-[calc(50%-672px)] top-28 z-10 w-64">
-        <div className="max-h-[calc(100vh-8rem)] overflow-auto rounded-lg border border-border bg-background/70 p-4 backdrop-blur-sm">
-          <h4 className="mb-3 text-sm font-semibold text-muted-foreground">On this page</h4>
+        <div className="max-h-[calc(100vh-8rem)] overflow-auto rounded-xl border border-border bg-background/70 p-5 backdrop-blur-sm">
+          <h4 className="type-caption mb-3 text-muted-foreground">On this page</h4>
           <ul className="space-y-2.5 text-sm">
             {items.map((item) => (
               <li key={item.id}>
