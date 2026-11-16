@@ -2,108 +2,448 @@
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Neutrals (background/foreground/muted/border) are shadcn's "Zinc" theme —
-   same base s2.dev/blog uses, giving the black/white foundation. --primary
-   is swapped from Zinc's near-black to a Bolna blue (same HSL pair shadcn
-   ships as its "Blue" preset) so links, hovers, and CTA accents read as
-   Bolna's brand blue instead of s2's violet. */
+/* Design tokens from the bolna.ai redesign (bolna-website tokens.css). This is
+   the one place the raw values live — components reference the semantic names
+   below (bg-background, text-muted-foreground, border-border, ...) or the
+   type/button classes further down. */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 221.2 83.2% 53.3%;
-  --radius: 0.5rem;
+  /* Raw palette */
+  --bolna-text: #111111;
+  --bolna-text-muted: #5b5c5c;
+  --bolna-text-subtle: #adadae;
+  --bolna-surface: #ffffff;
+  --bolna-surface-subtle: #f2f2f2;
+  --bolna-surface-dark: #111111;
+  --bolna-surface-dark-hover: #262626;
+  --bolna-border: #d0d0d0;
+  --bolna-border-light: #f2f2f2;
+  --bolna-border-strong: #111111;
+  --bolna-accent: #0073ff;
+  --bolna-blue-300: #64aaff;
+  --bolna-blue-400: #2889ff;
+  --bolna-blue-600: #0065df;
+  --bolna-blue-800: #00469a;
+  --bolna-accent-tint: #64aaff33;
+  --bolna-rainbow: linear-gradient(
+    90deg,
+    #f0699b 0%,
+    #fe7475 17.3%,
+    #ff8f36 32.4%,
+    #fecb4a 50%,
+    #67cb4c 67.3%,
+    #3587e8 82.5%,
+    #5047c5 100%
+  );
+
+  /* Semantic roles (light) */
+  --background: var(--bolna-surface);
+  --foreground: var(--bolna-text);
+  --card: var(--bolna-surface);
+  --card-foreground: var(--bolna-text);
+  --primary: var(--bolna-accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bolna-surface-subtle);
+  --secondary-foreground: var(--bolna-text);
+  --muted: var(--bolna-surface-subtle);
+  --muted-foreground: var(--bolna-text-muted);
+  --accent: var(--bolna-surface-subtle);
+  --accent-foreground: var(--bolna-text);
+  --border: var(--bolna-border);
+  --input: var(--bolna-border);
+  --ring: var(--bolna-accent);
+  --link: var(--bolna-accent);
+  --page-bg: linear-gradient(180deg, #ffffff 0%, #ebf2ff 100%);
+  --nav-bg: #ffffffcc;
+
+  /* Button roles (light) */
+  --btn-primary-bg: var(--bolna-surface-dark);
+  --btn-primary-bg-hover: var(--bolna-surface-dark-hover);
+  --btn-primary-fg: #ffffff;
+  --btn-primary-border: var(--bolna-surface-dark);
+  --btn-secondary-bg-hover: var(--bolna-surface-subtle);
+  --btn-secondary-fg: var(--bolna-text);
+  --btn-secondary-border: var(--bolna-border-strong);
+
+  /* Spacing */
+  --section-px: 20px;
+  --section-py: 64px;
+  --card-pad: 24px;
+  --btn-px: 19px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --btn-px: 23px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --section-px: 120px;
+    --section-py: 120px;
+    --card-pad: 48px;
+    --btn-px: 31px;
+  }
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 217.2 91.2% 59.8%;
+  --background: var(--bolna-surface-dark);
+  --foreground: #ffffff;
+  --card: var(--bolna-surface-dark);
+  --card-foreground: #ffffff;
+  --primary: var(--bolna-blue-300);
+  --primary-foreground: var(--bolna-surface-dark);
+  --secondary: var(--bolna-surface-dark-hover);
+  --secondary-foreground: #ffffff;
+  --muted: var(--bolna-surface-dark-hover);
+  --muted-foreground: var(--bolna-text-subtle);
+  --accent: var(--bolna-surface-dark-hover);
+  --accent-foreground: #ffffff;
+  --border: var(--bolna-surface-dark-hover);
+  --input: var(--bolna-surface-dark-hover);
+  --ring: var(--bolna-blue-300);
+  --link: var(--bolna-blue-300);
+  --page-bg: var(--bolna-surface-dark);
+  --nav-bg: #111111cc;
+
+  --btn-primary-bg: #ffffff;
+  --btn-primary-bg-hover: var(--bolna-surface-subtle);
+  --btn-primary-fg: var(--bolna-surface-dark);
+  --btn-primary-border: #ffffff;
+  --btn-secondary-bg-hover: var(--bolna-surface-dark-hover);
+  --btn-secondary-fg: #ffffff;
+  --btn-secondary-border: #ffffff;
 }
 
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-  --font-sans: var(--font-sans-family);
-  --font-heading: var(--font-heading-family);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface-dark: var(--bolna-surface-dark);
+  --color-surface-dark-hover: var(--bolna-surface-dark-hover);
+  --color-text-subtle: var(--bolna-text-subtle);
+  --color-accent-tint: var(--bolna-accent-tint);
+
+  /* Radii: 4, 8, 12 (buttons/menus), 16 (cards), 24 (panels), 120 (pills) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 120px;
+
+  --font-sans: var(--font-anek-latin), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-anek-latin), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, Menlo, monospace;
+}
+
+/* Anek Latin's x-height (0.488) is smaller than Inter's (0.546); keep the
+   existing pixel sizes and normalise the apparent size instead. */
+:root {
+  font-size-adjust: 0.546;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size-adjust: none;
+}
+
+html {
+  background-color: var(--background);
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: var(--page-bg);
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
-/* Typography-plugin overrides so `.prose` tracks the theme tokens above
-   without needing a separate dark:prose-invert variant. */
+/* Type scale (desktop / below 768px) */
+@layer components {
+  .type-display {
+    font-size: 46px;
+    line-height: 55px;
+    letter-spacing: -2px;
+    font-weight: 400;
+  }
+  .type-h1 {
+    font-size: 40px;
+    line-height: 48px;
+    letter-spacing: -2px;
+    font-weight: 400;
+  }
+  .type-h2 {
+    font-size: 32px;
+    line-height: 42px;
+    letter-spacing: -2px;
+    font-weight: 400;
+  }
+  .type-h3 {
+    font-size: 24px;
+    line-height: 31px;
+    letter-spacing: -2px;
+    font-weight: 400;
+  }
+  .type-h5 {
+    font-size: 20px;
+    line-height: 26px;
+    letter-spacing: -1px;
+    font-weight: 400;
+  }
+  .type-h6 {
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.432px;
+    font-weight: 400;
+  }
+  .type-lg {
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.528px;
+  }
+  .type-sm {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .type-xs {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .type-caption {
+    font-size: 14px;
+    line-height: 21px;
+    letter-spacing: 0.98px;
+    text-transform: uppercase;
+  }
+}
+
+@media (min-width: 768px) {
+  @layer components {
+    .type-display {
+      font-size: 82px;
+      line-height: 86px;
+    }
+    .type-h1 {
+      font-size: 64px;
+      line-height: 77px;
+    }
+    .type-h2 {
+      font-size: 56px;
+      line-height: 67px;
+    }
+    .type-h3 {
+      font-size: 48px;
+      line-height: 58px;
+    }
+    .type-h5 {
+      font-size: 32px;
+      line-height: 38px;
+    }
+    .type-h6 {
+      font-size: 24px;
+      line-height: 34px;
+    }
+    .type-lg {
+      font-size: 20px;
+      line-height: 30px;
+    }
+    .type-sm {
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
+}
+
+/* Buttons: 12px radius, 1px border, 16px medium label. The rainbow ring is a
+   masked gradient on ::before that fades in on hover (1.2px primary, 1px
+   secondary). */
+@layer components {
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px var(--btn-px);
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    padding: var(--ring-width, 1px);
+    border-radius: inherit;
+    background: var(--bolna-rainbow);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    opacity: 1;
+  }
+  .btn-primary {
+    --ring-width: 1.2px;
+    background-color: var(--btn-primary-bg);
+    border-color: var(--btn-primary-border);
+    color: var(--btn-primary-fg);
+  }
+  .btn-primary:hover {
+    background-color: var(--btn-primary-bg-hover);
+  }
+  .btn-secondary {
+    --ring-width: 1px;
+    background-color: transparent;
+    border-color: var(--btn-secondary-border);
+    color: var(--btn-secondary-fg);
+  }
+  .btn-secondary:hover {
+    background-color: var(--btn-secondary-bg-hover);
+  }
+}
+
+/* Typography-plugin overrides: the article spec is 20/30 body with
+   -0.528px tracking (16/24 on mobile), 32/38 section headings at weight 400,
+   and 22px between blocks. The reading column itself is capped in the page. */
 .prose {
-  --tw-prose-body: hsl(var(--foreground) / 0.9);
-  --tw-prose-headings: hsl(var(--foreground));
-  --tw-prose-links: hsl(var(--foreground));
-  --tw-prose-bold: hsl(var(--foreground));
-  --tw-prose-counters: hsl(var(--muted-foreground));
-  --tw-prose-bullets: hsl(var(--muted-foreground));
-  --tw-prose-hr: hsl(var(--border));
-  --tw-prose-quotes: hsl(var(--foreground));
-  --tw-prose-quote-borders: hsl(var(--border));
-  --tw-prose-captions: hsl(var(--muted-foreground));
-  --tw-prose-code: hsl(var(--foreground));
-  --tw-prose-pre-code: hsl(var(--foreground));
-  --tw-prose-pre-bg: hsl(var(--muted) / 0.5);
-  --tw-prose-th-borders: hsl(var(--border));
-  --tw-prose-td-borders: hsl(var(--border));
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--link);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-pre-bg: var(--muted);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
   max-width: none;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.528px;
+}
+
+@media (min-width: 768px) {
+  .prose {
+    font-size: 20px;
+    line-height: 30px;
+  }
+}
+
+.prose > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose > * + * {
+  margin-top: 22px;
+}
+
+.prose :where(p, li) {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.prose :where(ul, ol) {
+  padding-left: 1.5em;
+}
+
+.prose :where(li) {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.prose :where(h2, h3, h4) {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  color: var(--foreground);
+}
+
+.prose :where(h2) {
+  font-size: 20px;
+  line-height: 26px;
+  letter-spacing: -1px;
+}
+
+.prose :where(h3) {
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.432px;
+}
+
+.prose :where(h4) {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.432px;
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .prose :where(h2) {
+    font-size: 32px;
+    line-height: 38px;
+  }
+  .prose :where(h3) {
+    font-size: 24px;
+    line-height: 34px;
+  }
+  .prose :where(h4) {
+    font-size: 20px;
+    line-height: 30px;
+  }
+}
+
+.prose > :where(h2) {
+  margin-top: 56px;
+}
+
+.prose > :where(h3, h4) {
+  margin-top: 40px;
 }
 
 .prose :where(a) {
-  color: hsl(var(--primary));
-  text-decoration-color: hsl(var(--primary) / 0.3);
-  text-underline-offset: 2px;
+  color: var(--link);
+  text-decoration-color: var(--bolna-accent-tint);
+  text-underline-offset: 3px;
   font-weight: 500;
+}
+
+.prose :where(strong) {
+  font-weight: 600;
 }
 
 .prose :where(code)::before,
@@ -112,19 +452,48 @@ body {
 }
 
 .prose :where(code) {
-  background: hsl(var(--muted));
+  background: var(--muted);
   padding: 0.15em 0.4em;
   border-radius: var(--radius-sm);
-  font-weight: 500;
-  font-size: 0.875em;
+  font-weight: 400;
+  font-size: 0.8em;
 }
 
 .prose :where(pre) {
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+.prose :where(pre code) {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+.prose :where(blockquote) {
+  font-style: normal;
+  font-weight: 400;
+  border-inline-start-width: 2px;
+}
+
+.prose :where(table) {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+@media (min-width: 768px) {
+  .prose :where(table) {
+    font-size: 16px;
+    line-height: 24px;
+  }
 }
 
 .prose :where(img) {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
 }
 
 /* Set by the "#card" image hint in post bodies: a small inset screenshot,
@@ -134,5 +503,5 @@ body {
   display: block;
   width: 100%;
   max-width: 320px;
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
 }

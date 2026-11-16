@@ -96,8 +96,8 @@ function AuthorTag({ post }: { post: Post }) {
 
   const nameBlock = (
     <div>
-      <p className="font-medium text-foreground">{post.author}</p>
-      <p className="text-xs text-muted-foreground">Author</p>
+      <p className="text-base font-medium text-foreground">{post.author}</p>
+      <p className="type-sm text-muted-foreground">Author</p>
     </div>
   );
 
@@ -230,7 +230,7 @@ export default async function PostPage({
   };
 
   return (
-    <div className="mx-auto px-4 py-6 lg:py-10">
+    <div className="mx-auto py-10 lg:py-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -239,13 +239,13 @@ export default async function PostPage({
       />
       <div className="relative flex justify-center">
         <TableOfContents items={toc} />
-        <article className="w-full max-w-3xl">
+        <article className="w-full max-w-[720px]">
           <header className="mb-12 border-b border-border pb-8">
             <div className="mb-6">
-              <time dateTime={post.date} className="text-sm text-muted-foreground">
+              <time dateTime={post.date} className="type-sm text-muted-foreground">
                 {format(new Date(post.date), "MMMM d, yyyy")}
               </time>
-              <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
+              <h1 className="type-h3 mt-3 font-heading text-foreground">
                 {post.title}
               </h1>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -253,7 +253,7 @@ export default async function PostPage({
                   <a
                     key={cat}
                     href={`/blog/category/${categorySlug(cat)}`}
-                    className="inline-flex items-center rounded-sm border border-border px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
+                    className="inline-flex items-center rounded-pill border border-border px-4 py-1 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                   >
                     {cat}
                   </a>
@@ -277,13 +277,13 @@ export default async function PostPage({
               alt={post.title}
               width={720}
               height={405}
-              className="w-full rounded-md border border-border bg-muted"
+              className="w-full rounded-xl border border-border bg-muted"
               priority
             />
             {/* Covers are archival images chosen for what they say about the
                 post, which only works if the reader is told what they are. */}
             {post.coverCaption && (
-              <figcaption className="mt-3 text-sm text-muted-foreground">
+              <figcaption className="type-sm mt-3 text-muted-foreground">
                 {post.coverCaption}
               </figcaption>
             )}

@@ -20,3 +20,23 @@ export const SITE_URL = `https://www.bolna.ai${BASE_PATH}`;
 export const TWITTER_HANDLE = "@bolna_dev";
 
 export const RSS_PATH = `${BASE_PATH}/rss.xml`;
+
+// Navbar links, in the redesigned bolna.ai order. Customers points at a page
+// that 404s on live bolna.ai until the redesign ships, so it stays out of the
+// navbar until this flips to true — nothing else needs to change.
+export const SHOW_CUSTOMERS_LINK = false;
+
+export const NAV_LINKS = [
+  { label: "Products", href: "https://www.bolna.ai/#products" },
+  { label: "Usecases", href: "https://www.bolna.ai/#use-cases" },
+  { label: "Developers", href: "https://www.bolna.ai/#developers" },
+  ...(SHOW_CUSTOMERS_LINK
+    ? [{ label: "Customers", href: "https://www.bolna.ai/customer-stories" }]
+    : []),
+  { label: "Pricing", href: "https://www.bolna.ai/pricing" },
+  { label: "Docs", href: "https://www.bolna.ai/docs" },
+];
+
+export const LOGIN_URL = "https://platform.bolna.ai/login";
+export const CONTACT_SALES_URL = "https://www.bolna.ai/book-demo";
+export const MAIN_SITE_URL = "https://www.bolna.ai";
